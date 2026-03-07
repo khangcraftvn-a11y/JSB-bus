@@ -272,7 +272,7 @@ iframe {
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("../img/back1.webp");
+   background-image: url("./img/back1.webp");
    background-size: cover;
    background-position: center;
    gap: 50px;
@@ -285,7 +285,7 @@ iframe {
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("../img/back2.png");
+   background-image: url("./img/back2.png");
    background-size: cover;
    background-position: center;
    gap: 50px;
@@ -298,7 +298,7 @@ iframe {
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("../img/back3.png");
+   background-image: url("./img/back3.png");
    background-size: cover;
    background-position: center;
    gap: 50px;
@@ -311,7 +311,7 @@ iframe {
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("../img/back4.webp");
+   background-image: url("./img/back4.webp");
    background-size: cover;
    background-position: center;
    gap: 50px;
