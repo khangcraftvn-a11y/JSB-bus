@@ -166,11 +166,11 @@
 
     <script src="./js/index.js"></script>
 
-    <div id="content3">
+    <div id="content3"  class="snap-section">
         <img class="imgend" src="img/end.png" alt="ending">
     </div>
 
-    <footer class="footer-section" class="snap-section">
+    <footer class="footer-section">
         <div class="footer-downloads">
             <a href="https://limbus-company.vi.softonic.com/" target="_blank">
                 <img src="img/softonic.png" alt="Google Play">
@@ -202,8 +202,6 @@
         window.addEventListener("scroll", function () {
             const header = document.getElementById("header");
             const scrollY = window.scrollY;
-
-            // Log the current scroll position
             console.log("Scroll position:", scrollY);
 
             try {
@@ -215,7 +213,6 @@
                     console.log("Navbar visible when scrolling");
                 }
             } catch (error) {
-                // Log any unexpected errors
                 console.log("Error toggling navbar:", error);
             }
         });
