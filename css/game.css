@@ -18,6 +18,13 @@ iframe {
    background-color: black;
 }
 
+.snap-section {
+   width: 100%;
+   height: 100vh;
+   scroll-snap-align: start;
+   position: relative;
+}
+
 /* Introduction */
 #content {
    background-color: #000;

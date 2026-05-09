@@ -13,14 +13,14 @@
     <h2 style="color: white;">Limbus Company</h2>
     <div class="container" id="container">
         <div class="form-container sign-in-container">
-            <form action="./login.html">
+            <form id="forgot-password-form">
                 <h1 style="color: white;">Forgot Password</h1>
-                <span style="color: white;">Don't worry, just type your email and your new password we be execute</span>
-                <input type="email" placeholder="Email" />
-                <input type="password" placeholder="Password" />
-                <input type="password" placeholder="Confirm Password" />
-                <a style="color: white;" href="./login.html">Already had an account?</a>
-                <button>Confirm</button>
+                <span style="color: white;">Don't worry, just type your email and your new password will be
+                    executed</span>
+                <input type="email" id="reset-email" placeholder="Email" required />
+                <input type="password" id="new-password" placeholder="New Password" required />
+                <input type="password" id="confirm-new-password" placeholder="Confirm Password" required />
+                <button type="submit">Confirm</button>
             </form>
         </div>
         <div class="overlay-container">
@@ -28,11 +28,41 @@
                 <div class="overlay-panel overlay-right">
                     <h1>Hello, Manager!</h1>
                     <p>To keep connected with us please login with your personal info</p>
-                    <button class="ghost" id="signUp"><a style="color: #F1BF01;" href="./login.html">Login</button></a>
+                    <a href="./index.html">
+                        <button class="ghost" id="signUp">Login</button>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        const forgotForm = document.querySelector("#forgot-password-form");
+
+        forgotForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const email = document.querySelector("#reset-email").value.trim();
+            const newPassword = document.querySelector("#new-password").value.trim();
+            const confirmPassword = document.querySelector("#confirm-new-password").value.trim();
+            if (newPassword !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            const userIndex = users.findIndex(u => u.email === email);
+
+            if (userIndex !== -1) {
+                users[userIndex].password = newPassword;
+                localStorage.setItem("users", JSON.stringify(users));
+                alert("Password updated successfully, Manager.");
+                window.location.href = "./login.html";
+            } else {
+                alert("Email not found in our records!");
+            }
+        });
+    </script>
 </body>
 
 </html>
