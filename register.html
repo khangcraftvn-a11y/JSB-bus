@@ -61,10 +61,12 @@
                 return;
             }
             const newUser = {
-                name: name,
+                username: name,
                 email: email,
                 password: password,
-                lunacy: 0
+                lunacy: 0,
+                inventory: {},
+                equippedTag: null
             };
 
             users.push(newUser);

@@ -44,14 +44,16 @@ const shopItems = {
 };
 
 const allTagStyles = {
-    ...shopItems,
-    "The Wild Hunt": { style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
     "The Red Mist": { style: "background: linear-gradient(to right, #ff1a1a, #4d0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 71, 71, 0.1)" },
     "The Black Silence": { style: "background: linear-gradient(to right, #8e9297, #2c2e33); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(142, 146, 151, 0.1)" },
+    "Wild Hunt": { style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
     "Tamamo Cross": { style: "background: linear-gradient(to right, #00afff, #00364d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 175, 255, 0.1)" },
     "Paradise Lost": { style: "background: linear-gradient(to right, #ff7373, #5a0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 115, 115, 0.1)" },
     "Justitia": { style: "background: linear-gradient(to right, #00ffc8, #004d3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 255, 200, 0.08)" },
-    "Walpurgisnacht": { style: "background: linear-gradient(to right, #43b581, #0d2b1d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(67, 181, 129, 0.1)" }
+    "Walpurgisnacht": { style: "background: linear-gradient(to right, #43b581, #0d2b1d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(67, 181, 129, 0.1)" },
+    "Lament": { style: "background: linear-gradient(90deg, #4b0082, #000000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(75, 0, 130, 0.15)" },
+    "Catherine": { style: "background: linear-gradient(90deg, #ff69b4, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 105, 180, 0.15)" },
+    "Manor Ghost": { style: "background: linear-gradient(90deg, #a9a9a9, #2f4f4f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(169, 169, 169, 0.15)" }
 };
 
 const chatToggleBtn = document.getElementById('chat-toggle-btn');
@@ -132,16 +134,15 @@ function getBalance() {
 function getUsername() {
     if (currentUserIndex === -1) return "Dante";
     const user = users[currentUserIndex];
-
-    if (user.equippedTag && shopItems[user.equippedTag]) {
-        const tag = shopItems[user.equippedTag];
+    if (user.equippedTag && allTagStyles[user.equippedTag]) {
+        const tag = allTagStyles[user.equippedTag];
         return `
             <div style="background: ${tag.bg}; padding: 1px 8px; border-radius: 4px; display: inline-block; vertical-align: middle; line-height: 1;">
                 <span style="${tag.style} font-weight: bold; font-size: 14px;">${user.username || "Dante"}</span>
             </div>
         `;
     }
-    // Default return if no tag is equipped
+    // Default if no tag is equipped
     return `<b>${user.username || "Dante"}</b>`;
 }
 
@@ -252,20 +253,21 @@ function handleInput() {
 
             const rank = sortedUsers.findIndex(u => u.email === currentSession.email) + 1;
             const userData = allUsers.find(u => u.email === currentSession.email);
+            const styledName = getUsername();
 
             const balHtml = `
-            <div style="line-height: 1.5;">
-                <b style="font-size: 16px;">${currentSession.username}'s Balance</b><br>
+            <div style="line-height: 1.5; text-align: left;">
+                <b style="font-size: 16px;">${styledName}'s Balance</b><br>
                 <div style="margin-top: 10px;">
                     <b>Lunacy:</b><br>
-                    <span>${userData.lunacy || 0}</span>
+                    <span style="font-family: monospace;">${userData.lunacy || 0}</span>
                 </div>
                 <div style="margin-top: 5px;">
                     <b>Leaderboard Rank:</b><br>
                     <span>#${rank}</span>
                 </div>
             </div>
-        `;
+            `;
 
             addMessage("Wild Hunt", balHtml, "bot", BOT_ICON);
         }, 500);
@@ -293,8 +295,8 @@ function handleInput() {
             addMessage("Wild Hunt", shopHtml, "bot", BOT_ICON);
         }, 500);
     }
-    else if (text.startsWith("?shop buy ")) {
-        const itemName = text.replace("?shop buy ", "").trim();
+    else if (text.startsWith("?buy ")) {
+        const itemName = text.replace("?buy ", "").trim();
         const item = shopItems[itemName];
         const user = users[currentUserIndex];
 
@@ -365,12 +367,18 @@ function handleInput() {
         const user = users[currentUserIndex];
 
         setTimeout(() => {
-            if (user.inventory && user.inventory[itemName]) {
+            if (user.inventory && user.inventory[itemName] > 0) {
                 user.equippedTag = itemName;
                 saveUserData();
-                addMessage("Wild Hunt", `Successfully equipped ${itemName}.`, "bot", BOT_ICON);
+
+                const data = allTagStyles[itemName];
+                const displayName = data
+                    ? `<span style="${data.style} font-weight: bold;">@${itemName}</span>`
+                    : `@${itemName}`;
+
+                addMessage("System", `Successfully equipped ${displayName}.`, "bot", BOT_ICON);
             } else {
-                addMessage("Wild Hunt", "You do not own this nametag.", "bot", BOT_ICON);
+                addMessage("System", "You do not own this nametag in your collection.", "bot", BOT_ICON);
             }
         }, 500);
     }
@@ -382,9 +390,9 @@ function handleInput() {
             if (user.equippedTag === itemName) {
                 user.equippedTag = null;
                 saveUserData();
-                addMessage("Wild Hunt", `Successfully unequipped ${itemName}.`, "bot", BOT_ICON);
+                addMessage("System", `Successfully unequipped @${itemName}.`, "bot", BOT_ICON);
             } else {
-                addMessage("Wild Hunt", "You are not wearing that nametag.", "bot", BOT_ICON);
+                addMessage("System", "You are not currently wearing that nametag.", "bot", BOT_ICON);
             }
         }, 500);
     }
