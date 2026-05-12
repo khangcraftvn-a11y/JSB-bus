@@ -37,38 +37,42 @@
             </div>
         </div>
     </div>
+
     <script>
-        let form = document.querySelector("#register-form");
+        const form = document.querySelector("#register-form");
 
         form.addEventListener("submit", (e) => {
             e.preventDefault();
-            let name = document.querySelector("#fullName").value.trim();
-            let email = document.querySelector("#email").value.trim();
-            let password = document.querySelector("#password").value.trim();
-            let confirmPassword = document.querySelector("#confirmPassword").value;
+
+            const name = document.querySelector("#fullName").value.trim();
+            const email = document.querySelector("#email").value.trim().toLowerCase(); // Convert to lowercase for safety
+            const password = document.querySelector("#password").value.trim();
+            const confirmPassword = document.querySelector("#confirmPassword").value;
+
             if (password !== confirmPassword) {
                 alert("Passwords do not match!");
                 return;
             }
-            let users = JSON.parse(localStorage.getItem("users")) || [];
-            let userExists = users.some(u => u.email === email);
-            if (userExists) {
-                alert("This email is already signed up with Limbus Company!");
+            const users = JSON.parse(localStorage.getItem("users")) || [];
+            const emailExists = users.some(u => u.email === email);
+
+            if (emailExists) {
+                alert("This email is already signed up!");
                 return;
             }
-            let newUser = {
+            const newUser = {
                 name: name,
                 email: email,
-                password: password
+                password: password,
+                lunacy: 0
             };
+
             users.push(newUser);
             localStorage.setItem("users", JSON.stringify(users));
 
             alert("Yippeee!!! Account created successfully.");
             window.location.href = "./index.html";
         });
-
-        let registerForm = document.querySelector("#register-form");
     </script>
 </body>
 
