@@ -63,7 +63,15 @@ body {
     text-shadow: 0 0 8px var(--ryoshu-red);
 }
 
-/* FIX: Chat Button CSS Bug - Removes default button styling */
+#arrow-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.arrow-down {
+    transform: rotate(180deg);
+}
+
 .nav-chat-btn {
     background: none !important;
     border: none !important;

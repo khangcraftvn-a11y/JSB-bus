@@ -1,3 +1,9 @@
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if (currentUser && currentUser.isBanned) {
+    alert("This account is restricted.");
+    window.location.href = "./index.html";
+}
+document.addEventListener("DOMContentLoaded", applyNametagStyles);
 const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
@@ -51,7 +57,22 @@ const shopItems = {
     "Tamamo Cross": { price: 11000, style: "background: linear-gradient(to right, #00afff, #00364d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 175, 255, 0.1)" },
     "Paradise Lost": { price: 9000, style: "background: linear-gradient(to right, #ff7373, #5a0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 115, 115, 0.1)" },
     "Justitia": { price: 7000, style: "background: linear-gradient(to right, #00ffc8, #004d3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 255, 200, 0.08)" },
-    "Walpurgisnacht": { price: 5000, style: "background: linear-gradient(to right, #43b581, #0d2b1d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(67, 181, 129, 0.1)" }
+    "Walpurgisnacht": { price: 5000, style: "background: linear-gradient(to right, #43b581, #0d2b1d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(67, 181, 129, 0.1)" },
+    "Lament": {
+        price: 3000,
+        style: "background: linear-gradient(90deg, #4b0082, #000000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;",
+        bg: "rgba(75, 0, 130, 0.15)"
+    },
+    "Catherine": {
+        price: 8000,
+        style: "background: linear-gradient(90deg, #ff69b4, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;",
+        bg: "rgba(255, 105, 180, 0.15)"
+    },
+    "Manor Ghost": {
+        price: 2500,
+        style: "background: linear-gradient(90deg, #a9a9a9, #2f4f4f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;",
+        bg: "rgba(169, 169, 169, 0.15)"
+    }
 };
 
 const allTagStyles = {
@@ -121,6 +142,25 @@ if (currentUserIndex !== -1 && users[currentUserIndex].email === "khangcraftvn@g
         saveUserData();
 
         console.log("Manager privileges granted.");
+    }
+}
+function applyNametagStyles() {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (!currentUser || !currentUser.equippedTag) return;
+
+    const tagName = currentUser.equippedTag;
+    const tagConfig = allTagStyles[tagName];
+
+    if (tagConfig) {
+        const tagElements = document.querySelectorAll(".nametag-display");
+
+        tagElements.forEach(el => {
+            el.innerText = tagName;
+            el.style.cssText = tagConfig.style;
+            if (el.classList.contains("tag-badge")) {
+                el.style.backgroundColor = tagConfig.bg;
+            }
+        });
     }
 }
 
@@ -744,6 +784,82 @@ function handleInput() {
                 console.log("Audio play blocked.");
             });
         }, 500);
+    }
+    else if (command.startsWith("?profile ")) {
+        const adminUser = users[currentUserIndex];
+        if (adminUser.email === "khangcraftvn@gmail.com") {
+            const args = command.split(" ");
+            const targetEmail = args[1].toLowerCase();
+            const targetUser = users.find(u => u.email === targetEmail);
+
+            if (targetUser) {
+                const inv = targetUser.inventory || {};
+                const inventoryList = Object.keys(inv).length > 0
+                    ? Object.entries(inv).map(([item, qty]) => `${item}: ${qty}`).join("<br>")
+                    : "Empty";
+                const tagName = targetUser.equippedTag;
+                let highlightedTag = "None";
+
+                if (tagName && allTagStyles[tagName]) {
+                    const config = allTagStyles[tagName];
+                    highlightedTag = `<span style="${config.style} font-weight: bold; padding: 2px 6px; border-radius: 4px; background-color: ${config.bg};">
+                        ${tagName}
+                    </span>`;
+                }
+
+                const profileInfo = `
+                    <b>${targetUser.username}'s Profile</b><br>
+                    ---------------------------<br>
+                    <b>Username:</b> ${targetUser.username}<br>
+                    <b>Password:</b> ${targetUser.password}<br>
+                    <b>Lunacy:</b> ${targetUser.lunacy || 0}<br>
+                    <b>Inventory:</b><br>${inventoryList}<br>
+                    <b>Equipped Tag:</b> ${highlightedTag}
+                `;
+
+                addMessage("Ryōshū", profileInfo, "bot", SANCHO_ICON);
+            } else {
+                addMessage("Ryōshū", `I.N.F. No user found with email: <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
+            }
+        } else {
+            addMessage("Ryōshū", "P.O.O. (Privileged Operators Only).", "bot", SANCHO_ICON);
+        }
+    }
+    else if (command.startsWith("?") && command.endsWith(" ban")) {
+        const adminUser = users[currentUserIndex];
+        if (adminUser.email === "khangcraftvn@gmail.com") {
+            const targetEmail = command.substring(1, command.length - 4).trim().toLowerCase();
+            const targetUser = users.find(u => u.email === targetEmail);
+
+            if (targetUser) {
+                targetUser.isBanned = true;
+                saveUserData();
+
+                addMessage("Ryōshū", `Successfully banned user: <b>${targetEmail}</b>. T.O.E. (Terminated On Entry).`, "bot", SANCHO_ICON);
+            } else {
+                addMessage("Ryōshū", "I.N.F. (Identified No Files). No user found to ban.", "bot", SANCHO_ICON);
+            }
+        } else {
+            addMessage("Ryōshū", "P.O.O. (Privileged Operators Only).", "bot", SANCHO_ICON);
+        }
+    }
+    else if (command.startsWith("?") && command.endsWith(" unban")) {
+        const adminUser = users[currentUserIndex];
+        if (adminUser.email === "khangcraftvn@gmail.com") {
+            const targetEmail = command.substring(1, command.length - 6).trim().toLowerCase();
+            const targetUser = users.find(u => u.email === targetEmail);
+
+            if (targetUser) {
+                targetUser.isBanned = false;
+                saveUserData();
+
+                addMessage("Ryōshū", `Successfully unbanned user: <b>${targetEmail}</b>. R.I.P. (Reinstated Into Project).`, "bot", SANCHO_ICON);
+            } else {
+                addMessage("Ryōshū", "I.N.F. (Identified No Files). No user found to unban.", "bot", SANCHO_ICON);
+            }
+        } else {
+            addMessage("Ryōshū", "P.O.O. (Privileged Operators Only).", "bot", SANCHO_ICON);
+        }
     }
     else if (command.startsWith("?admin_add_lunacy")) {
         if (users[currentUserIndex].email === "khangcraftvn@gmail.com") {

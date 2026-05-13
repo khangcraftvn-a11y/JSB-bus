@@ -26,6 +26,13 @@ musicBtn.addEventListener('click', () => {
     }
 });
 const shopItems = {
+    "The Red Mist": { price: 16000, style: "background: linear-gradient(to right, #ff1a1a, #4d0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 71, 71, 0.1)" },
+    "The Black Silence": { price: 14500, style: "background: linear-gradient(to right, #8e9297, #2c2e33); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(142, 146, 151, 0.1)" },
+    "The Wild Hunt": { price: 12500, style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
+    "Tamamo Cross": { price: 11000, style: "background: linear-gradient(to right, #00afff, #00364d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 175, 255, 0.1)" },
+    "Paradise Lost": { price: 9000, style: "background: linear-gradient(to right, #ff7373, #5a0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 115, 115, 0.1)" },
+    "Justitia": { price: 7000, style: "background: linear-gradient(to right, #00ffc8, #004d3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 255, 200, 0.08)" },
+    "Walpurgisnacht": { price: 5000, style: "background: linear-gradient(to right, #43b581, #0d2b1d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(67, 181, 129, 0.1)" },
     "Lament": {
         price: 3000,
         style: "background: linear-gradient(90deg, #4b0082, #000000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;",
@@ -479,37 +486,52 @@ function handleInput() {
             const inv = users[currentUserIndex].inventory || {};
 
             if (args[1] === "1-pull") {
+                amount = 1;
+            } else if (args[1] === "10-pull") {
+                amount = 10;
+            } else {
+                amount = parseInt(args[1]) || 1;
+            }
+
+            // EXTRACTION LIMIT CHECK
+            if (amount > 10) {
+                addMessage("Wild Hunt", "Dullahan... halt. You can only extract <b>10 IDs</b> at once. Do not overstep.", "bot", BOT_ICON);
+                return;
+            }
+
+            if (args[1] === "1-pull") {
                 if ((inv["1-Pull Extraction Ticket"] || 0) >= 1) {
                     amount = 1;
-                    paymentMethod = "1-Pull Extraction Ticket";
+                    paymentMethod = "<b>1-Pull Extraction Ticket</b>";
                     addItemToInventory("1-Pull Extraction Ticket", -1);
                     canProceed = true;
-                } else { addMessage("Wild Hunt", "The coffins are empty. Not a single 1-Pull Ticket remains to call forth the spirits. Our march is halted by this hollow silence.", "bot", BOT_ICON); }
+                } else { addMessage("Wild Hunt", "You lack a <b>1-Pull Ticket</b> for this hunt.", "bot", BOT_ICON); }
             }
             else if (args[1] === "10-pull") {
                 if ((inv["10-Pull Extraction Ticket"] || 0) >= 1) {
                     amount = 10;
-                    paymentMethod = "10-Pull Extraction Ticket";
+                    paymentMethod = "<b>10-Pull Extraction Ticket</b>";
                     addItemToInventory("10-Pull Extraction Ticket", -1);
                     canProceed = true;
-                } else { addMessage("Wild Hunt", "The coffins are empty. Not a single 10-Pull Ticket remains to call forth the spirits. Our march is halted by this hollow silence.", "bot", BOT_ICON); }
+                } else { addMessage("Wild Hunt", "No <b>10-Pull Tickets</b> found within the coffin.", "bot", BOT_ICON); }
             }
             else {
-                amount = parseInt(args[1]) || 1;
                 const cost = 130 * amount;
                 if (getBalance() >= cost) {
                     updateStorage(-cost);
-                    paymentMethod = `${cost} Lunacy`;
+                    paymentMethod = `<b>${cost} Lunacy</b>`;
                     canProceed = true;
-                } else { addMessage("Wild Hunt", "Insufficient Lunacy.", "bot", BOT_ICON); }
+                } else { addMessage("Wild Hunt", "Insufficient <b>Lunacy</b>. The hunt demands a higher price.", "bot", BOT_ICON); }
             }
 
             if (canProceed) {
                 let extractedIDs = [];
                 let hasNewID = false;
+
                 for (let i = 0; i < amount; i++) {
                     const idName = extractionPool[Math.floor(Math.random() * extractionPool.length)];
                     let sinnerName = "";
+
                     if (idName.endsWith("Yi Sang")) sinnerName = "Yi Sang";
                     else if (idName.endsWith("Don Quixote")) sinnerName = "Don Quixote";
                     else if (idName.endsWith("Hong Lu")) sinnerName = "Hong Lu";
@@ -518,13 +540,25 @@ function handleInput() {
                         sinnerName = nameParts[nameParts.length - 1];
                     }
                     const collection = users[currentUserIndex].collection || {};
-                    if (!collection[sinnerName] || !collection[sinnerName].includes(idName)) hasNewID = true;
+                    if (!collection[sinnerName] || !collection[sinnerName].includes(idName)) {
+                        hasNewID = true;
+                    }
+
                     extractedIDs.push(idName);
                     addIdToCollection(idName, sinnerName);
                 }
+
                 const resultsHtml = extractedIDs.length > 1 ? extractedIDs.map(name => `• ${name}`).join("<br>") : extractedIDs[0];
-                addMessage("Wild Hunt", `<b>${getUsername()}'s Extraction Results</b><br>Method: ${paymentMethod}<br><br><b>IDs Obtained</b><br>${resultsHtml}`, "bot", BOT_ICON);
-                if (activeQuest === "EXTRACT") hasNewID ? endQuest(true) : endQuest(false);
+                addMessage("Wild Hunt", `<b>${getUsername()}'s Extraction Results</b><br>Method: ${paymentMethod}<br><br><b>IDs Claimed</b><br>${resultsHtml}`, "bot", BOT_ICON);
+
+                // PRESCRIPT
+                if (activeQuest === "EXTRACT") {
+                    if (hasNewID) {
+                        endQuest(true);
+                    } else {
+                        endQuest(false);
+                    }
+                }
             }
         }, 800);
     }
