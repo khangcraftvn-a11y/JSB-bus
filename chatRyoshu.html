@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ryōshū - LIMBUS COMPANY</title>
+    <link rel="stylesheet" href="./css/chatRyoshu.css">
+    <link rel="icon" type="images/webp" href="img/limlogo.webp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Nav Bar -->
+    <header id="header">
+        <div class="container">
+            <div class="logo">
+                <img class="logo-img"
+                    src="https://i0.wp.com/limbuscompany.global/wp-content/uploads/2021/10/limbus_logo_text_02-1.png?ssl=1"
+                    alt="logo">
+            </div>
+            <div class="navigation">
+                <div class="nav-left" id="main-content">
+                    <a href="./main.html">TOP</a>
+                    <a href="./main.html">WORLD</a>
+                    <a href="./char.html">CHARACTER</a>
+                    <a href="./game.html">GAMESYSTEM</a>
+                    <a href="./story.html">STORY</a>
+                    <a href="./dungeon.html">DUNGEON</a>
+                    <div class="dropdown">
+                        <button id="chat-toggle-btn" class="nav-chat-btn"> CHAT <i class="fas fa-chevron-up" id="arrow-icon"></i></button>
+                        <div id="chat-dropdown" class="dropdown-content">
+                            <a href="./chatSancho.html">Sancho</a>
+                            <a href="./chatWild.html">Wild Hunt</a>
+                            <a href="./chatRyoshu.html">Ryōshū</a>
+                        </div>
+                    </div>
+                    <button id="music-toggle" class="music-nav-link">
+                        TOGGLE MUSIC
+                    </button>
+                </div>
+                <div class="nav-right">
+                    <a href="./index.html">
+                        <button style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;"
+                            id="login-btn">Login</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="terminal-status">
+        <div class="status-text">Ryoshu and Araya</div>
+        <div id="status">My daughter... Die In High Style; your life was a smudge, but your death will be a masterpiece.</div>
+    </div>
+
+    <main id="chat-container">
+
+    </main>
+
+    <section class="input-area">
+        <input type="text" id="user-input"
+            placeholder="To chat click here and type ?help to display all available commands" autocomplete="off">
+        <button id="send-btn">EXECUTE</button>
+    </section>
+
+    <script src="./js/chatRyoshu.js"></script>
+</body>
+
+</html>

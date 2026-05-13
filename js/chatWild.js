@@ -5,7 +5,7 @@ const SOUND_GUIDANCE = new Audio("./sound/index.mp3");
 const SOUND_SUCCESS = new Audio("./sound/index.mp3");
 const SOUND_FAILED = new Audio("./sound/index.mp3");
 const SOUND_WARNING = new Audio("./sound/index.mp3");
-const wildIntroSound = new Audio('./sound/wildGreet.ogg');
+const susuIntroSound = new Audio('./sound/wildGreet.ogg');
 const BGM = new Audio("./sound/wild.mp3");
 BGM.loop = true;
 BGM.volume = 0.3;
@@ -28,7 +28,7 @@ musicBtn.addEventListener('click', () => {
 const shopItems = {
     "Lament": {
         price: 3000,
-        style: "background: linear-gradient(90deg, #53b4e6, #000000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;",
+        style: "background: linear-gradient(90deg, #4b0082, #000000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;",
         bg: "rgba(75, 0, 130, 0.15)"
     },
     "Catherine": {
@@ -46,7 +46,7 @@ const shopItems = {
 const allTagStyles = {
     "The Red Mist": { style: "background: linear-gradient(to right, #ff1a1a, #4d0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 71, 71, 0.1)" },
     "The Black Silence": { style: "background: linear-gradient(to right, #8e9297, #2c2e33); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(142, 146, 151, 0.1)" },
-    "Wild Hunt": { style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
+    "The Wild Hunt": { style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
     "Tamamo Cross": { style: "background: linear-gradient(to right, #00afff, #00364d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 175, 255, 0.1)" },
     "Paradise Lost": { style: "background: linear-gradient(to right, #ff7373, #5a0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 115, 115, 0.1)" },
     "Justitia": { style: "background: linear-gradient(to right, #00ffc8, #004d3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 255, 200, 0.08)" },
@@ -282,7 +282,7 @@ function handleInput() {
                 ${Object.entries(shopItems).map(([name, item]) => `
                     <div style="margin-bottom: 12px;">
                         <div style="display: inline-block; background: ${item.bg}; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px;">
-                            <span style="${item.style} font-weight: bold;">@${name}</span>
+                            <span style="${item.style} font-weight: bold;">${name}</span>
                         </div><br>
                         <span style="color: #dbdee1;">Price: <b>${item.price} Lunacy</b></span>
                     </div>
@@ -300,13 +300,30 @@ function handleInput() {
         const item = shopItems[itemName];
         const user = users[currentUserIndex];
 
+        // 1. STYLE THE USER'S COMMAND
+        // We look up the style in allTagStyles to ensure it highlights correctly
+        const tagData = allTagStyles[itemName];
+
+        const userHighlight = tagData ? `
+            <div style="display: inline-flex; align-items: center; background: ${tagData.bg}; padding: 2px 8px; border-radius: 4px; vertical-align: middle; margin-left: 8px;">
+                <span style="${tagData.style} font-weight: bold;">${itemName}</span>
+            </div>` : ` <b>${itemName}</b>`;
+
+        const userCommandDisplay = `?buy ${userHighlight}`;
+
+        // SAFETY CHECK: Only call update function if it actually exists
+        if (typeof updateLastUserMessage === "function") {
+            updateLastUserMessage(userCommandDisplay);
+        }
+
         setTimeout(() => {
+            // 2. ERROR HANDLING
             if (!item) {
-                addMessage("Wild Hunt", "That <b>nametag</b> does not exist in the shop.", "bot", BOT_ICON);
+                addMessage("Wild Hunt", `That <b>nametag</b> does not exist in the shop.`, "bot", BOT_ICON);
                 return;
             }
             if (user.inventory && user.inventory[itemName]) {
-                addMessage("Wild Hunt", "You have already owned this <b>nametag</b>.", "bot", BOT_ICON);
+                addMessage("Wild Hunt", `You have already owned the ${itemName} <b>nametag</b>.`, "bot", BOT_ICON);
                 return;
             }
             if ((user.lunacy || 0) < item.price) {
@@ -314,13 +331,19 @@ function handleInput() {
                 return;
             }
 
-            // Purchase
+            // 3. PURCHASE EXECUTION
             user.lunacy -= item.price;
             if (!user.inventory) user.inventory = {};
             user.inventory[itemName] = 1;
             saveUserData();
 
-            const purchaseMsg = `${getUsername()} purchased ${itemName} for ${item.price} Lunacy.`;
+            // 4. STYLE THE BOT'S RESPONSE (No @ symbol)
+            const botHighlight = tagData ? `
+                <div style="display: inline-flex; align-items: center; background: ${tagData.bg}; padding: 2px 8px; border-radius: 4px; vertical-align: middle; margin: 0 4px;">
+                    <span style="${tagData.style} font-weight: bold;">${itemName}</span>
+                </div>` : `<b>${itemName}</b>`;
+
+            const purchaseMsg = `${getUsername()} purchased ${botHighlight} for ${item.price} Lunacy.`;
             addMessage("Wild Hunt", purchaseMsg, "bot", BOT_ICON);
         }, 500);
     }
@@ -350,8 +373,8 @@ function handleInput() {
                 const data = allTagStyles[tag];
                 return data ? `
                             <div style="display: flex; align-items: center; background: ${data.bg}; padding: 4px 10px; border-radius: 5px; margin-bottom: 6px; width: fit-content;">
-                                <span style="${data.style} font-weight: bold; font-size: 14px;">@${tag}</span>
-                            </div>` : `<div style="margin-bottom: 8px; font-size: 14px; color: #888;">@${tag}</div>`;
+                                <span style="${data.style} font-weight: bold; font-size: 14px;">${tag}</span>
+                            </div>` : `<div style="margin-bottom: 8px; font-size: 14px; color: #888;">${tag}</div>`;
             }).join('')}
                 </div>
 
@@ -372,9 +395,14 @@ function handleInput() {
                 saveUserData();
 
                 const data = allTagStyles[itemName];
+
+
                 const displayName = data
-                    ? `<span style="${data.style} font-weight: bold;">@${itemName}</span>`
-                    : `@${itemName}`;
+                    ? `
+                    <div style="display: inline-flex; align-items: center; background: ${data.bg}; padding: 2px 8px; border-radius: 4px; vertical-align: middle; margin-left: 5px;">
+                        <span style="${data.style} font-weight: bold;">${itemName}</span>
+                    </div>`
+                    : `${itemName}`;
 
                 addMessage("System", `Successfully equipped ${displayName}.`, "bot", BOT_ICON);
             } else {
@@ -390,7 +418,7 @@ function handleInput() {
             if (user.equippedTag === itemName) {
                 user.equippedTag = null;
                 saveUserData();
-                addMessage("System", `Successfully unequipped @${itemName}.`, "bot", BOT_ICON);
+                addMessage("System", `Successfully unequipped ${itemName}.`, "bot", BOT_ICON);
             } else {
                 addMessage("System", "You are not currently wearing that nametag.", "bot", BOT_ICON);
             }
@@ -594,8 +622,8 @@ function handleInput() {
 
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        wildIntroSound.currentTime = 0;
-        wildIntroSound.play().catch(error => {
+        susuIntroSound.currentTime = 0;
+        susuIntroSound.play().catch(error => {
             console.log("Audio play blocked: Interaction required.");
         });
 

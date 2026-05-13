@@ -24,7 +24,7 @@ const shopItems = {
 const allTagStyles = {
     "The Red Mist": { style: "background: linear-gradient(to right, #ff1a1a, #4d0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 71, 71, 0.1)" },
     "The Black Silence": { style: "background: linear-gradient(to right, #8e9297, #2c2e33); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(142, 146, 151, 0.1)" },
-    "Wild Hunt": { style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
+    "The Wild Hunt": { style: "background: linear-gradient(to right, #A330FF, #32005a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(163, 48, 255, 0.1)" },
     "Tamamo Cross": { style: "background: linear-gradient(to right, #00afff, #00364d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 175, 255, 0.1)" },
     "Paradise Lost": { style: "background: linear-gradient(to right, #ff7373, #5a0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 115, 115, 0.1)" },
     "Justitia": { style: "background: linear-gradient(to right, #00ffc8, #004d3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(0, 255, 200, 0.08)" },
@@ -92,9 +92,11 @@ if (currentUserIndex !== -1 && users[currentUserIndex].email === "khangcraftvn@g
 }
 
 function saveUserData() {
-    if (currentUserIndex !== -1) {
-        localStorage.setItem("users", JSON.stringify(users));
-    }
+    localStorage.setItem("users", JSON.stringify(users));
+    const updatedUser = users[currentUserIndex];
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+    const container = document.getElementById("nametag-container");
+    if (container) container.innerHTML = getUsername();
 }
 
 function updateStorage(amount) {
@@ -129,20 +131,22 @@ function getBalance() {
 }
 
 function getUsername() {
-    if (currentUserIndex === -1) return "Dante";
-    const user = users[currentUserIndex];
+    const session = JSON.parse(localStorage.getItem("currentUser"));
+    if (!session || !session.username) return "Dante";
 
-    // Check the allTagStyles
-    if (user.equippedTag && allTagStyles[user.equippedTag]) {
-        const tag = allTagStyles[user.equippedTag];
+    const tagKey = session.equippedTag;
+    const tag = allTagStyles[tagKey];
+
+    if (tag) {
         return `
-            <div style="background: ${tag.bg}; padding: 1px 8px; border-radius: 4px; display: inline-block; vertical-align: middle; line-height: 1;">
-                <span style="${tag.style} font-weight: bold; font-size: 14px;">${user.username || "Dante"}</span>
+            <div style="background: ${tag.bg}; padding: 2px 10px; border-radius: 4px; display: inline-flex; align-items: center; vertical-align: middle;">
+                <span style="${tag.style} font-weight: bold; font-family: 'Courier New', monospace;">${session.username}</span>
             </div>
         `;
     }
-    // Default if no tag is equipped
-    return `<b>${user.username || "Dante"}</b>`;
+
+    // Default if no tag is found or tagKey is null
+    return `<span style="color: #ffcc00; font-weight: bold;">${session.username}</span>`;
 }
 
 let activeQuest = null;
@@ -180,7 +184,7 @@ function highlightNametags(text) {
         const item = shopItems[itemName];
         const styledTag = `
             <div style="background: ${item.bg}; padding: 1px 6px; border-radius: 4px; display: inline-block; vertical-align: middle; line-height: 1.2;">
-                <span style="${item.style} font-weight: bold; font-size: 0.95em;">@${itemName}</span>
+                <span style="${item.style} font-weight: bold; font-size: 0.95em;">${itemName}</span>
             </div>
         `;
         const regex = new RegExp(`\\b${itemName}\\b`, 'g');
@@ -194,13 +198,14 @@ function addMessage(sender, text, side, icon) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${side}-msg`;
     const processedText = highlightNametags(text);
+
     let nameHtml = (sender === "Sancho") ?
         `<div class="sancho-name">${sender}</div>` :
         `<div class="sender-name" style="display: flex; align-items: center;">${sender}</div>`;
 
     msgDiv.innerHTML = `
         <img src="${icon}" class="icon">
-        <div>
+        <div class="message-content">
             ${nameHtml}
             <div class="bubble">${processedText}</div>
         </div>
@@ -238,14 +243,17 @@ function handleInput() {
     const text = userInput.value.trim();
     if (!text) return;
 
+    // Call getUsername() here to get the current styled tag
+    const currentStyledName = getUsername();
+
     if (activeQuest === "SILENCE") {
-        addMessage(getUsername(), text, "user", USER_ICON);
+        addMessage(currentStyledName, text, "user", USER_ICON);
         userInput.value = "";
         endQuest(false);
         return;
     }
 
-    addMessage(getUsername(), text, "user", USER_ICON);
+    addMessage(currentStyledName, text, "user", USER_ICON);
     userInput.value = "";
     const command = text.toLowerCase();
 
@@ -294,24 +302,33 @@ function handleInput() {
         }, 500);
     }
     else if (command === "?shop") {
-        setTimeout(() => {
+        if (window.shopTimeout) clearTimeout(window.shopTimeout);
+
+        window.shopTimeout = setTimeout(() => {
+            const uniqueEntries = Object.entries(shopItems);
+
+            const itemListHtml = uniqueEntries.map(([name, item]) => {
+                const cleanName = name.startsWith('@') ? name.slice(1) : name;
+
+                return `
+                <div style="margin-bottom: 12px;">
+                    <div style="display: inline-block; background: ${item.bg}; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px;">
+                        <span style="${item.style} font-weight: bold;">${cleanName}</span>
+                    </div><br>
+                    <span style="color: #dbdee1;">Price: <b>${item.price} Lunacy</b></span>
+                </div>`;
+            }).join('');
+
             const shopHtml = `
             <div style="background-color: #2b2d31; color: #dbdee1; padding: 15px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; max-width: 320px; line-height: 1.4; text-align: left; border: 1px solid rgba(255,255,255,0.05);">
                 <b style="color: white; font-size: 16px;">SANCHO'S LUNACY SHOP</b><br>
                 <span style="font-size: 12px; color: #b5bac1;">Use <b>?shop buy [name]</b> to purchase!</span><br><br>
 
-                ${Object.entries(shopItems).map(([name, item]) => `
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: inline-block; background: ${item.bg}; padding: 2px 8px; border-radius: 4px; margin-bottom: 4px;">
-                            <span style="${item.style} font-weight: bold;">@${name}</span>
-                        </div><br>
-                        <span style="color: #dbdee1;">Price: <b>${item.price} Lunacy</b></span>
-                    </div>
-                `).join('')}
+                ${itemListHtml}
                 
                 <hr style="border: 0; border-top: 1px solid #3f4147; margin: 10px 0;">
-                <div style="font-size: 11px; color: #949ba4; display: flex; align-items: center;">
-                    Requested by <span style="margin-left: 5px;">${getUsername()}</span>
+                <div style="font-size: 11px; color: #949ba4; display: flex; align-items: center; gap: 5px;">
+                    Requested by <span>${getUsername()}</span>
                 </div>
             </div>`;
 
@@ -347,7 +364,7 @@ function handleInput() {
             addMessage("Sancho", purchaseMsg, "bot", SANCHO_ICON);
         }, 500);
     }
-    else if (command === "?inventory") {
+    if (command === "?inventory") {
         setTimeout(() => {
             const user = users[currentUserIndex];
             const inv = user.inventory || {};
@@ -359,8 +376,8 @@ function handleInput() {
 
             let invHtml = `
             <div style="background-color: #1e1f22; color: #dbdee1; padding: 20px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; max-width: 350px; text-align: left;">
-                <b style="font-size: 18px;">${getUsername()}'s Collection</b><br>
-                <br><br>
+                <b style="font-size: 18px;">${getUsername()}'s Inventory:</b><br>
+                <span></span><br><br>
                 
                 <b style="font-size: 16px;">Extraction Tickets:</b><br>
                 ${ticket10Count > 0 ? `<b>10-Pull Extraction Ticket</b>: ${ticket10Count}<br>` : ""}
@@ -368,17 +385,18 @@ function handleInput() {
                 ${ticket1Count === 0 && ticket10Count === 0 ? "<i>No tickets found.</i><br>" : ""}
                 
                 <br><b style="font-size: 16px;">Nametags:</b><br>
-                <div style="margin-top: 10px;">
+                <div style="margin-top: 8px;">
                     ${nametags.length === 0 ? "<i>No nametags owned.</i>" : nametags.map(tag => {
                 const data = allTagStyles[tag];
                 return data ? `
-                            <div style="display: flex; align-items: center; background: ${data.bg}; padding: 4px 10px; border-radius: 5px; margin-bottom: 8px; width: fit-content;">
-                                <span style="${data.style} font-weight: bold; font-size: 14px;">@${tag}</span>
-                            </div>` : `<div style="margin-bottom: 8px; font-size: 14px; color: #888;">@${tag}</div>`;
+                            <div style="display: flex; align-items: center; background: ${data.bg}; padding: 4px 10px; border-radius: 5px; margin-bottom: 6px; width: fit-content;">
+                                <span style="${data.style} font-weight: bold; font-size: 14px;">${tag}</span>
+                            </div>` : `<div style="margin-bottom: 8px; font-size: 14px; color: #888;">${tag}</div>`;
             }).join('')}
                 </div>
-                <br>
-                <span style="color: #888; font-size: 12px;">Type <b>?inventory equip [name]</b> to change your look.</span>
+
+                <br><br>
+                <span style="color: #888; font-size: 13px;">Type <b>?inventory equip [name]</b> to change your look.</span>
             </div>`;
 
             addMessage("Sancho", invHtml, "bot", SANCHO_ICON);
@@ -389,9 +407,16 @@ function handleInput() {
         const user = users[currentUserIndex];
 
         setTimeout(() => {
-            if (user.inventory && user.inventory[itemName]) {
+            // Check if the item exists in inventory and the count is > 0
+            if (user.inventory && user.inventory[itemName] > 0) {
                 user.equippedTag = itemName;
+
+                // SAVE TO BOTH PLACES
                 saveUserData();
+
+                // FORCE UPDATE THE SESSION
+                localStorage.setItem("currentUser", JSON.stringify(user));
+
                 addMessage("Sancho", `Successfully equipped ${itemName}.`, "bot", SANCHO_ICON);
             } else {
                 addMessage("Sancho", "You do not own this nametag.", "bot", SANCHO_ICON);
@@ -399,16 +424,20 @@ function handleInput() {
         }, 500);
     }
     else if (text.startsWith("?inventory unequip ")) {
-        const itemName = text.replace("?inventory unequip ", "").trim();
         const user = users[currentUserIndex];
 
         setTimeout(() => {
-            if (user.equippedTag === itemName) {
+            if (user.equippedTag) {
+                const oldTag = user.equippedTag;
                 user.equippedTag = null;
+
+                // SAVE TO BOTH PLACES
                 saveUserData();
-                addMessage("Sancho", `Successfully unequipped ${itemName}.`, "bot", SANCHO_ICON);
+                localStorage.setItem("currentUser", JSON.stringify(user));
+
+                addMessage("Sancho", `Successfully unequipped ${oldTag}.`, "bot", SANCHO_ICON);
             } else {
-                addMessage("Sancho", "You are not wearing that nametag.", "bot", SANCHO_ICON);
+                addMessage("Sancho", "You are not wearing any nametag.", "bot", SANCHO_ICON);
             }
         }, 500);
     }
@@ -485,6 +514,19 @@ function handleInput() {
             const inv = users[currentUserIndex].inventory || {};
 
             if (args[1] === "1-pull") {
+                amount = 1;
+            } else if (args[1] === "10-pull") {
+                amount = 10;
+            } else {
+                amount = parseInt(args[1]) || 1;
+            }
+
+            if (amount > 10) {
+                addMessage("Sancho", "My apologies, Manager! You can only extract <b>10 extractions</b> at a time.", "bot", SANCHO_ICON);
+                return;
+            }
+
+            if (args[1] === "1-pull") {
                 if ((inv["1-Pull Extraction Ticket"] || 0) >= 1) {
                     amount = 1;
                     paymentMethod = "<b>1-Pull Extraction Ticket</b>";
@@ -501,7 +543,6 @@ function handleInput() {
                 } else { addMessage("Sancho", "No <b>10-Pull Tickets available</b>.", "bot", SANCHO_ICON); }
             }
             else {
-                amount = parseInt(args[1]) || 1;
                 const cost = 130 * amount;
                 if (getBalance() >= cost) {
                     updateStorage(-cost);
