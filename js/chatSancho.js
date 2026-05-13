@@ -145,7 +145,7 @@ function getUsername() {
         `;
     }
 
-    // Default if no tag is found or tagKey is null
+    // Default if no tag is foundl
     return `<span style="color: #ffcc00; font-weight: bold;">${session.username}</span>`;
 }
 
@@ -242,8 +242,6 @@ function endQuest(success, reward = true) {
 function handleInput() {
     const text = userInput.value.trim();
     if (!text) return;
-
-    // Call getUsername() here to get the current styled tag
     const currentStyledName = getUsername();
 
     if (activeQuest === "SILENCE") {
@@ -407,14 +405,9 @@ function handleInput() {
         const user = users[currentUserIndex];
 
         setTimeout(() => {
-            // Check if the item exists in inventory and the count is > 0
             if (user.inventory && user.inventory[itemName] > 0) {
                 user.equippedTag = itemName;
-
-                // SAVE TO BOTH PLACES
                 saveUserData();
-
-                // FORCE UPDATE THE SESSION
                 localStorage.setItem("currentUser", JSON.stringify(user));
 
                 addMessage("Sancho", `Successfully equipped ${itemName}.`, "bot", SANCHO_ICON);
@@ -430,8 +423,6 @@ function handleInput() {
             if (user.equippedTag) {
                 const oldTag = user.equippedTag;
                 user.equippedTag = null;
-
-                // SAVE TO BOTH PLACES
                 saveUserData();
                 localStorage.setItem("currentUser", JSON.stringify(user));
 

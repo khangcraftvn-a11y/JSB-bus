@@ -299,9 +299,6 @@ function handleInput() {
         const itemName = text.replace("?buy ", "").trim();
         const item = shopItems[itemName];
         const user = users[currentUserIndex];
-
-        // 1. STYLE THE USER'S COMMAND
-        // We look up the style in allTagStyles to ensure it highlights correctly
         const tagData = allTagStyles[itemName];
 
         const userHighlight = tagData ? `
@@ -310,14 +307,11 @@ function handleInput() {
             </div>` : ` <b>${itemName}</b>`;
 
         const userCommandDisplay = `?buy ${userHighlight}`;
-
-        // SAFETY CHECK: Only call update function if it actually exists
         if (typeof updateLastUserMessage === "function") {
             updateLastUserMessage(userCommandDisplay);
         }
 
         setTimeout(() => {
-            // 2. ERROR HANDLING
             if (!item) {
                 addMessage("Wild Hunt", `That <b>nametag</b> does not exist in the shop.`, "bot", BOT_ICON);
                 return;
@@ -330,14 +324,10 @@ function handleInput() {
                 addMessage("Wild Hunt", "Insufficient <b>Lunacy</b>.", "bot", BOT_ICON);
                 return;
             }
-
-            // 3. PURCHASE EXECUTION
             user.lunacy -= item.price;
             if (!user.inventory) user.inventory = {};
             user.inventory[itemName] = 1;
             saveUserData();
-
-            // 4. STYLE THE BOT'S RESPONSE (No @ symbol)
             const botHighlight = tagData ? `
                 <div style="display: inline-flex; align-items: center; background: ${tagData.bg}; padding: 2px 8px; border-radius: 4px; vertical-align: middle; margin: 0 4px;">
                     <span style="${tagData.style} font-weight: bold;">${itemName}</span>

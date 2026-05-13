@@ -36,9 +36,11 @@ const susuLimitSound = new Audio('./sound/susuLimit.wav');
 susuLimitSound.volume = 0.5;
 const susuAdminGiveSound = new Audio('./sound/susuAdminGive.wav');
 susuAdminGiveSound.volume = 0.5;
-const allSFX = [susuIntroSound, susuGreetSound, susuHelpSound, susuNothingSound, susuWinSound, susuNotEnoughSound, susuHadSound, susuBalInSound, susuShopSound, susuEquipSound, susuUnequipSound, susuSinnersSound, susuLimitSound, susuAdminGiveSound];
+const susuBuySound = new Audio('./sound/susuBuy.wav');
+susuBuySound.volume = 0.5;
+const allSFX = [susuIntroSound, susuGreetSound, susuHelpSound, susuNothingSound, susuWinSound, susuNotEnoughSound, susuHadSound, susuBalInSound, susuShopSound, susuEquipSound, susuUnequipSound, susuSinnersSound, susuLimitSound, susuAdminGiveSound, susuBuySound];
 BGM.loop = true;
-BGM.volume = 0.8;
+BGM.volume = 0.65;
 const musicBtn = document.getElementById('music-toggle');
 let isMuted = true;
 musicBtn.classList.add('muted');
@@ -420,8 +422,12 @@ function handleInput() {
             user.inventory[itemName] = 1;
             saveUserData();
 
-            const purchaseMsg = `${getUsername()} purchased ${itemName} for ${item.price} Lunacy.`;
+            const purchaseMsg = `Got a fine <b>piece</b> of <b>work out of it</b>. ${getUsername()} purchased ${itemName} for ${item.price} Lunacy.`;
             addMessage("Ryōshū", purchaseMsg, "bot", SANCHO_ICON);
+            stopAllSFX();
+            susuBuySound.play().catch(error => {
+                console.log("Audio play blocked.");
+            });
         }, 500);
     }
     if (command === "?inventory") {
