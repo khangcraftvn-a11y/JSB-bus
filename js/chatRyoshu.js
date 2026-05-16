@@ -1,8 +1,3 @@
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-if (currentUser && currentUser.isBanned) {
-    alert("This account is restricted.");
-    window.location.href = "./index.html";
-}
 document.addEventListener("DOMContentLoaded", applyNametagStyles);
 const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
@@ -11,7 +6,7 @@ const SOUND_GUIDANCE = new Audio("./sound/index.mp3");
 const SOUND_SUCCESS = new Audio("./sound/index.mp3");
 const SOUND_FAILED = new Audio("./sound/index.mp3");
 const SOUND_WARNING = new Audio("./sound/index.mp3");
-const BGM = new Audio("./sound/SAIKAI_Theme.mp3");
+const BGM = new Audio("./sound/Saikai.mp3");
 const susuIntroSound = new Audio('./sound/susuIntro.wav');
 susuIntroSound.volume = 0.5;
 const susuGreetSound = new Audio('./sound/susuGreet.wav');
@@ -87,6 +82,11 @@ const allTagStyles = {
     "Catherine": { style: "background: linear-gradient(90deg, #ff69b4, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 105, 180, 0.15)" },
     "Manor Ghost": { style: "background: linear-gradient(90deg, #a9a9a9, #2f4f4f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(169, 169, 169, 0.15)" }
 };
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if (currentUser && currentUser.isBanned) {
+    alert("This account is restricted.");
+    window.location.href = "./index.html";
+}
 
 // Toggle Sound
 musicBtn.addEventListener('click', () => {
@@ -470,7 +470,7 @@ function handleInput() {
             });
         }, 500);
     }
-    if (command === "?inventory") {
+    if (command === "?inv") {
         setTimeout(() => {
             const user = users[currentUserIndex];
             const inv = user.inventory || {};
@@ -511,8 +511,8 @@ function handleInput() {
             addMessage("Ryōshū", invHtml, "bot", SANCHO_ICON);
         }, 500);
     }
-    else if (text.startsWith("?inventory equip ")) {
-        const itemName = text.replace("?inventory equip ", "").trim();
+    else if (text.startsWith("?inv equip ")) {
+        const itemName = text.replace("?inv equip ", "").trim();
         const user = users[currentUserIndex];
         setTimeout(() => {
             if (user.inventory && user.inventory[itemName] > 0) {
@@ -537,7 +537,7 @@ function handleInput() {
             }
         }, 500);
     }
-    else if (text.startsWith("?inventory unequip ")) {
+    else if (text.startsWith("?inv unequip ")) {
         const user = users[currentUserIndex];
 
         setTimeout(() => {
@@ -726,7 +726,7 @@ function handleInput() {
                 }
 
                 const resultsHtml = extractedIDs.length > 1 ? extractedIDs.map(name => `• ${name}`).join("<br>") : extractedIDs[0];
-                addMessage("Sancho", `<b>${getUsername()}'s Extraction Results</b><br>Method: ${paymentMethod}<br><br><b>IDs Obtained</b><br>${resultsHtml}`, "bot", SANCHO_ICON);
+                addMessage("Ryōshū", `<b>${getUsername()}'s Extraction Results</b><br>Method: ${paymentMethod}<br><br><b>IDs Obtained</b><br>${resultsHtml}`, "bot", SANCHO_ICON);
 
                 // PRESCRIPT
                 if (activeQuest === "EXTRACT") {

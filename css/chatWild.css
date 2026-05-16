@@ -120,7 +120,7 @@ body {
 }
 
 .dropdown-content {
-    display: none; /* Collapsed by default */
+    display: none;
     position: absolute;
     background-color: #1a1a1a;
     min-width: 140px;

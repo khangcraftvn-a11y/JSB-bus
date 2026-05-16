@@ -5,9 +5,30 @@ const SOUND_GUIDANCE = new Audio("./sound/index.mp3");
 const SOUND_SUCCESS = new Audio("./sound/index.mp3");
 const SOUND_FAILED = new Audio("./sound/index.mp3");
 const SOUND_WARNING = new Audio("./sound/index.mp3");
-const BGM = new Audio("./sound/theme.mp3");
+const sanchoGreetSound = new Audio('./sound/sanchoGreet.ogg');
+sanchoGreetSound.volume = 1;
+const sanchoHiSound = new Audio('./sound/sanchoHi.ogg');
+sanchoHiSound.volume = 1;
+const sanchoChat1Sound = new Audio('./sound/sanchoChat1.ogg');
+sanchoChat1Sound.volume = 1;
+const sanchoChat2Sound = new Audio('./sound/sanchoChat2.ogg');
+sanchoChat2Sound.volume = 1;
+const sanchoNegativeSound = new Audio('./sound/sanchoNegative.ogg');
+sanchoNegativeSound.volume = 1;
+const sanchoBuySound = new Audio('./sound/sanchoBuy.ogg');
+sanchoBuySound.volume = 1;
+const sanchoEquipSound = new Audio('./sound/sanchoEquip.ogg');
+sanchoEquipSound.volume = 1;
+const sanchoUnequipSound = new Audio('./sound/sanchoUnequip.ogg');
+sanchoUnequipSound.volume = 1;
+const sanchoNothingSound = new Audio('./sound/sanchoNothing.ogg');
+sanchoNothingSound.volume = 1;
+const sanchoWinSound = new Audio('./sound/sanchoWin.ogg');
+sanchoWinSound.volume = 1;
+const allSFX = [sanchoGreetSound, sanchoHiSound, sanchoChat1Sound, sanchoChat2Sound, sanchoBuySound, sanchoNegativeSound, sanchoEquipSound, sanchoUnequipSound, sanchoNothingSound, sanchoWinSound];
+const BGM = new Audio("./sound/hero.mp3");
 BGM.loop = true;
-BGM.volume = 0.3;
+BGM.volume = 0.5;
 const musicBtn = document.getElementById('music-toggle');
 let isMuted = true;
 musicBtn.classList.add('muted');
@@ -48,6 +69,12 @@ const allTagStyles = {
     "Catherine": { style: "background: linear-gradient(90deg, #ff69b4, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(255, 105, 180, 0.15)" },
     "Manor Ghost": { style: "background: linear-gradient(90deg, #a9a9a9, #2f4f4f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(169, 169, 169, 0.15)" }
 };
+function stopAllSFX() {
+    allSFX.forEach(sound => {
+        sound.pause();
+        sound.currentTime = 0;
+    });
+}
 
 // Toggle Sound
 musicBtn.addEventListener('click', () => {
@@ -160,7 +187,7 @@ function getUsername() {
         `;
     }
 
-    // Default if no tag is foundl
+    // Default if no tag is found
     return `<span style="color: #ffcc00; font-weight: bold;">${session.username}</span>`;
 }
 
@@ -276,7 +303,13 @@ function handleInput() {
     }
 
     if (command === "hi" || command === "hello") {
-        setTimeout(() => addMessage("Sancho", "Greetings, Manager. Please type <b>?help</b> for all <b>available commands</b>.", "bot", SANCHO_ICON), 500);
+        setTimeout(() => {
+            addMessage("Sancho", "	The Family will be <b>well-cared</b> for… After all, the <b>onus</b> always fell on me to provide for what you <b>abandoned</b>. Type <b>?help</b> for all <b>Available Commands</b>.", "bot", SANCHO_ICON);
+            stopAllSFX();
+            sanchoHiSound.play().catch(error => {
+                console.log("Audio play blocked.");
+            });
+        }, 500);
     }
     else if (command === "?bal") {
         setTimeout(() => {
@@ -312,6 +345,10 @@ function handleInput() {
             </div>
             `;
             addMessage("Sancho", balHtml, "bot", SANCHO_ICON);
+            stopAllSFX();
+            sanchoChat1Sound.play().catch(error => {
+                console.log("Audio play blocked.");
+            });
         }, 500);
     }
     else if (command === "?shop") {
@@ -346,6 +383,10 @@ function handleInput() {
             </div>`;
 
             addMessage("Sancho", shopHtml, "bot", SANCHO_ICON);
+            stopAllSFX();
+            sanchoChat2Sound.play().catch(error => {
+                console.log("Audio play blocked.");
+            });
         }, 500);
     }
     else if (text.startsWith("?buy ")) {
@@ -355,15 +396,27 @@ function handleInput() {
 
         setTimeout(() => {
             if (!item) {
-                addMessage("Sancho", "That <b>nametag</b> does not exist in the shop.", "bot", SANCHO_ICON);
+                addMessage("Sancho", "…Hold your tongue. That <b>nametag</b> does not exist in the shop.", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoNegativeSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 return;
             }
             if (user.inventory && user.inventory[itemName]) {
-                addMessage("Sancho", "You have already owned this <b>nametag</b>.", "bot", SANCHO_ICON);
+                addMessage("Sancho", "…Hold your tongue. You have already owned this <b>nametag</b>.", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoNegativeSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 return;
             }
             if ((user.lunacy || 0) < item.price) {
-                addMessage("Sancho", "Insufficient <b>Lunacy</b>.", "bot", SANCHO_ICON);
+                addMessage("Sancho", "…Hold your tongue. Insufficient <b>Lunacy</b>.", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoNegativeSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 return;
             }
 
@@ -373,11 +426,15 @@ function handleInput() {
             user.inventory[itemName] = 1;
             saveUserData();
 
-            const purchaseMsg = `${getUsername()} purchased ${itemName} for ${item.price} Lunacy.`;
+            const purchaseMsg = `For the <b>family</b>. ${getUsername()} purchased ${itemName} for ${item.price} Lunacy.`;
             addMessage("Sancho", purchaseMsg, "bot", SANCHO_ICON);
+            stopAllSFX();
+            sanchoBuySound.play().catch(error => {
+                console.log("Audio play blocked.");
+            });
         }, 500);
     }
-    if (command === "?inventory") {
+    else if (command === "?inv") {
         setTimeout(() => {
             const user = users[currentUserIndex];
             const inv = user.inventory || {};
@@ -409,14 +466,14 @@ function handleInput() {
                 </div>
 
                 <br><br>
-                <span style="color: #888; font-size: 13px;">Type <b>?inventory equip [name]</b> to change your look.</span>
+                <span style="color: #888; font-size: 13px;">Type <b>?inv equip [name]</b> to change your look.</span>
             </div>`;
 
             addMessage("Sancho", invHtml, "bot", SANCHO_ICON);
         }, 500);
     }
-    else if (text.startsWith("?inventory equip ")) {
-        const itemName = text.replace("?inventory equip ", "").trim();
+    else if (text.startsWith("?inv equip ")) {
+        const itemName = text.replace("?inv equip ", "").trim();
         const user = users[currentUserIndex];
 
         setTimeout(() => {
@@ -426,12 +483,20 @@ function handleInput() {
                 localStorage.setItem("currentUser", JSON.stringify(user));
 
                 addMessage("Sancho", `Successfully equipped ${itemName}.`, "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoEquipSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
             } else {
-                addMessage("Sancho", "You do not own this nametag.", "bot", SANCHO_ICON);
+                addMessage("Sancho", "…Hold your tongue. You do not own this nametag.", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoNegativeSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
             }
         }, 500);
     }
-    else if (text.startsWith("?inventory unequip ")) {
+    else if (text.startsWith("?inv unequip ")) {
         const user = users[currentUserIndex];
 
         setTimeout(() => {
@@ -442,8 +507,16 @@ function handleInput() {
                 localStorage.setItem("currentUser", JSON.stringify(user));
 
                 addMessage("Sancho", `Successfully unequipped ${oldTag}.`, "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoUnequipSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
             } else {
-                addMessage("Sancho", "You are not wearing any nametag.", "bot", SANCHO_ICON);
+                addMessage("Sancho", "…Hold your tongue. You are not wearing any nametag.", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoNegativeSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
             }
         }, 500);
     }
@@ -461,30 +534,23 @@ function handleInput() {
         }, 500);
     }
     else if (command === "?gamble") {
-        const currentTime = Date.now();
-        const cooldownTime = 300000;
-        const timePassed = currentTime - lastGambleTime;
-
-        if (timePassed < cooldownTime) {
-            const msLeft = cooldownTime - timePassed;
-            const h = Math.floor(msLeft / 3600000);
-            const m = Math.floor((msLeft % 3600000) / 60000);
-            const s = Math.ceil((msLeft % 60000) / 1000);
-            let timeString = (h > 0 ? h + "h " : "") + (m > 0 || h > 0 ? m + "m " : "") + s + "s";
-            addMessage("Sancho", `Gamble is on cooldown! Try again in <b>${timeString}</b>.`, "bot", SANCHO_ICON);
-            return;
-        }
-        lastGambleTime = currentTime;
-
         setTimeout(() => {
             const chance = Math.random();
             if (chance < 0.65) {
-                addMessage("Sancho", `Gambled... and won <b>Nothing</b>.`, "bot", SANCHO_ICON);
+                addMessage("Sancho", `I… cannot speak a word. You won <b>Nothing</b>.`, "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoNothingSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 if (activeQuest === "GAMBLE_WIN") endQuest(false);
             }
             else if (chance < 0.85) {
                 const winAmount = Math.floor(Math.random() * 451) + 50; // Wins 50 to 500
-                addMessage("Sancho", `Gambled... and won ${winAmount} <b>Lunacy</b>!`, "bot", SANCHO_ICON);
+                addMessage("Sancho", `You <b>won</b> for now, yet I do not know what lies in your future. You won ${winAmount} <b>Lunacy</b>!`, "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoWinSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 updateStorage(winAmount);
 
                 // PRESCRIPT CHECK
@@ -498,13 +564,21 @@ function handleInput() {
                 }
             }
             else if (chance < 0.95) {
-                addMessage("Sancho", "Gambled... and won an item: <b>1-Pull Extraction Ticket</b>!", "bot", SANCHO_ICON);
+                addMessage("Sancho", "You <b>won</b> for now, yet I do not know what lies in your future. You won an item: <b>1-Pull Extraction Ticket</b>!", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoWinSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 addItemToInventory("1-Pull Extraction Ticket", 1);
 
                 if (activeQuest === "GAMBLE_WIN") endQuest(false);
             }
             else {
-                addMessage("Sancho", "Gambled... and won an item: <b>10-Pull Extraction Ticket</b>!", "bot", SANCHO_ICON);
+                addMessage("Sancho", "You <b>won</b> for now, yet I do not know what lies in your future. You won an item: <b>10-Pull Extraction Ticket</b>!", "bot", SANCHO_ICON);
+                stopAllSFX();
+                sanchoWinSound.play().catch(error => {
+                    console.log("Audio play blocked.");
+                });
                 addItemToInventory("10-Pull Extraction Ticket", 1);
 
                 if (activeQuest === "GAMBLE_WIN") endQuest(false);
@@ -625,7 +699,7 @@ function handleInput() {
             <b>AVAILABLE COMMANDS:</b><br><br>
             • <b>?bal</b> - Check your current <b>Rank</b> and <b>Lunacy</b>.<br>
             • <b>?shop</b> - Browse and buy <b>Nametags</b> using Lunacy.<br>
-            • <b>?inventory</b> - View your items (<b>Extraction Tickets</b>, <b>Nametags</b>).<br>
+            • <b>?inv</b> - View your items (<b>Extraction Tickets</b>, <b>Nametags</b>).<br>
             • <b>?sinners</b> - View all 12 <b>Sinners</b> and your collected <b>Identities</b>.<br>
             • <b>?gamble</b> - Test your luck for <b>Lunacy</b> or <b>Extraction Ticket</b>.<br>
             • <b>?extract [value]</b> - Extract using <b>Lunacy</b>.<br>
@@ -770,9 +844,12 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }, 1500);
     setTimeout(() => {
+        sanchoGreetSound.currentTime = 0;
+        sanchoGreetSound.play().catch(error => {
+            console.log("Audio play blocked: Interaction required.");
+        });
         if (currentUserIndex !== -1 && !users[currentUserIndex].adminNotification) {
-            const greeting = "My name is <b>Sancho</b>! And <b>I</b>, <b>Sancho</b>, declare upon my <b>honor</b>: This <b>lance</b> shall end that <b>festering</b>, <b>slothful dream</b>! Type <b>?help</b> for guidance.";
-
+            const greeting = "I don't suppose locking the castle gates will do <b>aught</b> to deter the Knight from <b>relentlessly</b> knocking upon them. Father will <b>command</b> us to let the Knight in, with that <b>familiar twinkle</b> in his eyes, and… <b>Haah…</b> this hour alone has become a <b>cause for headaches</b>.";
             addMessage("Sancho", greeting, "bot", SANCHO_ICON);
         }
     }, 1000);
