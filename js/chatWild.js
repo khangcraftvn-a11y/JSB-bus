@@ -11,24 +11,26 @@ BGM.volume = 0.3;
 const musicBtn = document.getElementById('music-toggle');
 let isMuted = true;
 musicBtn.classList.add('muted');
+let userSkillChoices = [];
+let awaitingSkillChoice = false;
 let isFighting = false;
 let canUserAttack = true;
 let botCurrentRoll = 0;
 
-let userHearts = 3;
-let botHearts = 5;
+let userHearts = 5;
+let botHearts = 10;
 
 const userSkills = [
-    { name: "I Wish to Open the Path", min: 4, max: 12, chance: 0.30 },
-    { name: "Tarnished Blood's Absolute Cleaver of Ambitions", min: 4, max: 18, chance: 0.25 },
-    { name: "Answer Me, Heishou Packs", min: 12, max: 22, chance: 0.20 },
-    { name: "Lonesome Stand: Sacrifice to Claim The Garden", min: 14, max: 30, chance: 0.15 }
+    { name: "I Wish to Open the Path", min: 4, max: 12, chance: 0.50 },                           // 50%
+    { name: "Tarnished Blood's Absolute Cleaver of Ambitions", min: 4, max: 18, chance: 0.25 }, // 25%
+    { name: "Answer Me, Heishou Packs", min: 12, max: 22, chance: 0.15 },                       // 15%
+    { name: "Lonesome Stand: Sacrifice to Claim The Garden", min: 14, max: 30, chance: 0.10 }    // 10%
 ];
 const sinclairSkills = [
-    { name: "Downward Swing", min: 5, max: 10, chance: 0.30 },
+    { name: "Downward Swing", min: 6, max: 14, chance: 0.50 },
     { name: "Halberd Combo", min: 8, max: 17, chance: 0.25 },
-    { name: "Trench-specialized Spear Combat", min: 10, max: 25, chance: 0.20 },
-    { name: "True Decapitation Deathblow", min: 12, max: 30, chance: 0.15 }
+    { name: "Trench-specialized Spear Combat", min: 14, max: 25, chance: 0.25 },
+    { name: "True Decapitation Deathblow", min: 15, max: 30, chance: 0.10 }
 ];
 
 const shopItems = {
@@ -74,6 +76,98 @@ function stopAllSFX() {
         sound.currentTime = 0;
     });
 }
+
+const flashOverlay = document.createElement("div");
+flashOverlay.id = "flashbang-overlay";
+document.body.appendChild(flashOverlay);
+
+const sparkContainer = document.createElement("div");
+sparkContainer.id = "spark-container";
+document.body.appendChild(sparkContainer);
+
+for (let i = 0; i < 15; i++) {
+    const spark = document.createElement("div");
+    spark.className = "spark";
+    spark.style.left = Math.random() * 100 + "vw";
+    spark.style.top = Math.random() * 100 + "vh";
+    sparkContainer.appendChild(spark);
+}
+
+let audioContext;
+let analyser;
+let dataArray;
+let source;
+
+function analyzeVolume() {
+    requestAnimationFrame(analyzeVolume);
+
+    if (!analyser) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    let total = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+        total += dataArray[i];
+    }
+    const averageVolume = total / dataArray.length;
+
+    const bgVideo = document.querySelector("video") || document.querySelector(".bg-video");
+
+    if (bgVideo) {
+        const baseScale = 1.00;
+
+        const zoomIntensity = averageVolume / 800;
+        const dynamicScale = baseScale + zoomIntensity;
+
+        bgVideo.style.transform = `translate(-50%, -50%) scale(${dynamicScale})`;
+
+        const volumeThreshold = 1;
+        const sparks = document.querySelectorAll(".spark");
+
+        if (averageVolume > volumeThreshold) {
+            sparks.forEach(spark => {
+                if (Math.random() > 0.1) {
+                    spark.classList.add("pop");
+                    spark.style.left = Math.random() * 100 + "vw";
+                    spark.style.top = Math.random() * 100 + "vh";
+                }
+            });
+        } else {
+            sparks.forEach(spark => {
+                spark.classList.remove("pop");
+            });
+        }
+    }
+}
+
+function initAudioAnalyzer() {
+    if (typeof BGM === 'undefined' || !BGM) {
+        console.warn("BGM object is not defined yet.");
+        return;
+    }
+
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+
+        source = audioContext.createMediaElementSource(BGM);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
+        analyzeVolume();
+    }
+}
+
+document.addEventListener("click", () => {
+    initAudioAnalyzer();
+    if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+}, { once: true });
 
 // Toggle Sound
 musicBtn.addEventListener('click', () => {
@@ -145,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         source.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
-        // Handle autoplay safety catch
         let playPromise = video.play();
         if (playPromise !== undefined) {
             playPromise.catch(() => {
@@ -327,6 +420,10 @@ function handleInput() {
     userInput.value = "";
     const command = text.toLowerCase();
 
+    const args = command.split(" ");
+    const baseCommand = args[0];
+    const choiceArg = args[1];
+
     if (activeQuest === "MESSAGES" && command !== "?prescript") {
         messageCounter++;
         if (messageCounter >= 8) endQuest(true);
@@ -387,8 +484,8 @@ function handleInput() {
         }
 
         isFighting = true;
-        userHearts = 3;
-        botHearts = 5;
+        userHearts = 5;
+        botHearts = 10;
 
         let botName = "A Certain Sinclair";
         let botIcon = SANCHO_ICON;
@@ -418,7 +515,6 @@ function handleInput() {
                 selectedSkill = sinclairSkills[0];
             }
 
-            // Calculate the random attack power
             const finalAtkPower = Math.floor(Math.random() * (selectedSkill.max - selectedSkill.min + 1)) + selectedSkill.min;
             const attackDisplay = `<b>${selectedSkill.name}</b>: [<b>${finalAtkPower}</b>]`;
             addMessage(botName, attackDisplay, "bot", botIcon);
@@ -430,10 +526,13 @@ function handleInput() {
                 chatContainer.classList.remove("screen-shake");
             }, 400);
 
+            botCurrentRoll = finalAtkPower;
+            canUserAttack = true;
+
         }, 1000);
     }
 
-    else if (command === "?skill") {
+    else if (baseCommand === "?skill") {
         let botName = "A Certain Sinclair";
         let botIcon = typeof RYOSHU_ICON !== 'undefined' ? RYOSHU_ICON : typeof WILD_HUNT_ICON !== 'undefined' ? WILD_HUNT_ICON : SANCHO_ICON;
 
@@ -442,6 +541,87 @@ function handleInput() {
             addMessage(botName, "There is no clash to answer to. Type ?fight sinclair first.", "bot", botIcon);
             return;
         }
+
+        if (awaitingSkillChoice) {
+            if (choiceArg !== "1" && choiceArg !== "2") {
+                addMessage(botName, "Invalid selection. Please choose your action with <b>?skill 1</b> or <b>?skill 2</b>.", "bot", botIcon);
+                return;
+            }
+            awaitingSkillChoice = false;
+
+            const selectedIndex = parseInt(choiceArg) - 1;
+            const selectedUserSkill = userSkillChoices[selectedIndex];
+            const userRoll = Math.floor(Math.random() * (selectedUserSkill.max - selectedUserSkill.min + 1)) + selectedUserSkill.min;
+
+            addMessage(getUsername(), `<b>${selectedUserSkill.name}</b>: [<b>${userRoll}</b>]`, "user", USER_ICON);
+            setTimeout(() => {
+                if (userRoll > botCurrentRoll) {
+                    botHearts--;
+                    addMessage(botName, "Looks like my past self has faced some tough battles, too.", "bot", botIcon);
+                    addMessage(botName, `A Certain Sinclair - 1 HP`, "bot", botIcon);
+
+                    const chatContainer = document.getElementById("chat-container");
+                    chatContainer.classList.add("screen-shake");
+                    setTimeout(() => {
+                        chatContainer.classList.remove("screen-shake");
+                    }, 400);
+                }
+                else if (userRoll < botCurrentRoll) {
+                    userHearts--;
+                    addMessage(botName, "Emptiness of sound, emptiness of form, and... emptiness of mind.", "bot", botIcon);
+                    addMessage(botName, `${getUsername()} - 1 HP`, "bot", botIcon);
+
+                    const chatContainer = document.getElementById("chat-container");
+                    chatContainer.classList.add("screen-shake");
+                    setTimeout(() => {
+                        chatContainer.classList.remove("screen-shake");
+                    }, 400);
+                }
+                else {
+                    addMessage(botName, "DRAW. Though now, I've come to realize that knowledge holds no real answers.", "bot", botIcon);
+                }
+
+                if (userHearts <= 0) {
+                    addMessage(botName, "Defeat. This lonely path of adversity, the path of my choosing.", "bot", botIcon);
+                    isFighting = false;
+                    canUserAttack = true;
+                } else if (botHearts <= 0) {
+                    addMessage(botName, "Victory. I think I've heard enough..", "bot", botIcon);
+                    updateStorage(1000);
+                    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+                    const totalLunacy = currentUser ? currentUser.lunacy : 2500;
+                    addMessage(botName, `<b>[REWARD]</b> You earned <b>2,500 Lunacy</b>!`, "bot", botIcon);
+
+                    isFighting = false;
+                    canUserAttack = true;
+                } else {
+                    setTimeout(() => {
+                        const botRollChoice = Math.random();
+                        let selectedSkill = sinclairSkills[0];
+
+                        if (botRollChoice < 0.30) selectedSkill = sinclairSkills[0];
+                        else if (botRollChoice < 0.55) selectedSkill = sinclairSkills[1];
+                        else if (botRollChoice < 0.75) selectedSkill = sinclairSkills[2];
+                        else if (botRollChoice < 0.90) selectedSkill = sinclairSkills[3];
+
+                        botCurrentRoll = Math.floor(Math.random() * (selectedSkill.max - selectedSkill.min + 1)) + selectedSkill.min;
+
+                        addMessage(botName, `<b>${selectedSkill.name}</b>: [${botCurrentRoll}]`, "bot", botIcon);
+
+                        const chatContainer = document.getElementById("chat-container");
+                        chatContainer.classList.add("screen-shake");
+                        setTimeout(() => {
+                            chatContainer.classList.remove("screen-shake");
+                        }, 400);
+
+                        canUserAttack = true;
+                    }, 1200);
+                }
+            }, 800);
+
+            return;
+        }
+
         if (!canUserAttack) {
             addMessage(botName, "Wait for your opponent to display their strategy.", "bot", botIcon);
             return;
@@ -449,102 +629,101 @@ function handleInput() {
 
         canUserAttack = false;
 
-        // PERCENTAGE
-        const roll = Math.random();
-        let selectedUserSkill = userSkills[0];
-
-        if (roll < 0.30) {
-            selectedUserSkill = userSkills[0]; // 30% chance
-        } else if (roll < 0.55) {
-            selectedUserSkill = userSkills[1]; // 25% chance (0.30 + 0.25)
-        } else if (roll < 0.75) {
-            selectedUserSkill = userSkills[2]; // 20% chance (0.55 + 0.20)
-        } else if (roll < 0.90) {
-            selectedUserSkill = userSkills[3]; // 15% chance (0.75 + 0.15)
+        function getWeightedSkill() {
+            const roll = Math.random();
+            if (roll < 0.50) return userSkills[0];
+            else if (roll < 0.75) return userSkills[1];
+            else if (roll < 0.90) return userSkills[2];
+            else return userSkills[3];
         }
 
-        const userRoll = Math.floor(Math.random() * (selectedUserSkill.max - selectedUserSkill.min + 1)) + selectedUserSkill.min;
-        addMessage(getUsername(), `<b>${selectedUserSkill.name}</b>: [<b>${userRoll}</b>]`, "user", USER_ICON);
+        const firstSkill = getWeightedSkill();
+        const secondSkill = getWeightedSkill();
 
-        setTimeout(() => {
-            if (userRoll > botCurrentRoll) {
-                botHearts--;
-                addMessage(botName, "Looks like my past self has faced some tough battles, too.", "bot", botIcon);
-                addMessage(botName, `A Certain Sinclair - 1 heart`, "bot", botIcon);
+        userSkillChoices = [firstSkill, secondSkill];
+        awaitingSkillChoice = true;
 
-                const chatContainer = document.getElementById("chat-container");
-                chatContainer.classList.add("screen-shake");
-                setTimeout(() => {
-                    chatContainer.classList.remove("screen-shake");
-                }, 400);
-            }
-            else if (userRoll < botCurrentRoll) {
-                userHearts--;
-                addMessage(botName, "CLASH WIN", "bot", botIcon);
-                addMessage(botName, `${getUsername()} - 1 heart`, "bot", botIcon);
-
-                const chatContainer = document.getElementById("chat-container");
-                chatContainer.classList.add("screen-shake");
-                setTimeout(() => {
-                    chatContainer.classList.remove("screen-shake");
-                }, 400);
-            }
-            else {
-                addMessage(botName, "DRAW. Neither side yielded an inch.", "bot", botIcon);
-            }
-
-            if (userHearts <= 0) {
-                addMessage(botName, "Defeat. Your light fades in La Mancha Land.", "bot", botIcon);
-                isFighting = false;
-                canUserAttack = true;
-            } else if (botHearts <= 0) {
-                addMessage(botName, "Victory. The Sinclair vanishes back into the pages.", "bot", botIcon);
-                isFighting = false;
-                canUserAttack = true;
-            } else {
-                // Return cycle: Setup Sinclair's automated response
-                setTimeout(() => {
-                    const botRollChoice = Math.random();
-                    let selectedSkill = sinclairSkills[0];
-
-                    if (botRollChoice < 0.30) selectedSkill = sinclairSkills[0];
-                    else if (botRollChoice < 0.55) selectedSkill = sinclairSkills[1];
-                    else if (botRollChoice < 0.75) selectedSkill = sinclairSkills[2];
-                    else if (botRollChoice < 0.90) selectedSkill = sinclairSkills[3];
-
-                    botCurrentRoll = Math.floor(Math.random() * (selectedSkill.max - selectedSkill.min + 1)) + selectedSkill.min;
-
-                    addMessage(botName, `<b>${selectedSkill.name}</b>: [${botCurrentRoll}]`, "bot", botIcon);
-
-                    // --- ADDED: SCREEN SHAKE ON BOT CONTINUOUS ATTACK ---
-                    const chatContainer = document.getElementById("chat-container");
-                    chatContainer.classList.add("screen-shake");
-                    setTimeout(() => {
-                        chatContainer.classList.remove("screen-shake");
-                    }, 400);
-
-                    canUserAttack = true; // Handoff round control
-                }, 1200);
-            }
-        }, 800);
+        const choicesDisplay = `
+            <b>Select your strategic counter:</b><br>
+            1️⃣ <b>${userSkillChoices[0].name}</b> [${userSkillChoices[0].min} - ${userSkillChoices[0].max}]<br>
+            2️⃣ <b>${userSkillChoices[1].name}</b> [${userSkillChoices[1].min} - ${userSkillChoices[1].max}]<br>
+            <span style="font-size: 0.85em; color: #aaa;">Type <b>?skill 1</b> or <b>?skill 2</b> to strike!</span>
+        `;
+        addMessage(getUsername(), choicesDisplay, "user", USER_ICON);
     }
     else if (command === "?help") {
         setTimeout(() => {
-            const helpText = `
-            <b>AVAILABLE COMMANDS:</b><br><br>
-            • <b>?bal</b> - Check your current <b>Rank</b> and <b>Lunacy</b>.<br>
-            • <b>?shop</b> - Browse and buy <b>Nametags</b> using Lunacy.<br>
-            • <b>?inv</b> - View your items (<b>Extraction Tickets</b>, <b>Nametags</b>).<br>
-            • <b>?sinners</b> - View all 12 <b>Sinners</b> and your collected <b>Identities</b>.<br>
-            • <b>?gamble</b> - Test your luck for <b>Lunacy</b> or <b>Extraction Ticket</b>.<br>
-            • <b>?extract [value]</b> - Extract using <b>Lunacy</b>.<br>
-            • <b>?extract 1-pull</b> - Use a <b>1-Pull Extraction Ticket</b>.<br>
-            • <b>?extract 10-pull</b> - Use a <b>10-Pull Extraction Ticket</b>.<br>
-            • <b>?prescript</b> - Receive a <b>task</b> from the Index.<br>
-            • <b>?help</b> - View all <b>available commands</b>.
-        `;
-            addMessage("Sancho", helpText, "bot", SANCHO_ICON);
+            const combatText = `
+                <b>COMBAT SYSTEM MANUAL</b><br><br>
+                
+                • <b>STARTING A BATTLE</b><br>
+                &nbsp;&nbsp; TYPE: <b>?fight sinclair</b><br>
+                &nbsp;&nbsp; EFFECT: Initializes a new match. Resets both fighter health values and locks your inputs into battle mode.<br><br>
+
+                • <b>EXECUTING AN ATTACK</b><br>
+                &nbsp;&nbsp; TYPE: <b>?skill</b><br>
+                &nbsp;&nbsp; EFFECT: Triggers a random skill draw, rolls your active clash value, and evaluates the round outcome against the boss.<br><br>
+
+                • <b>SKILL SELECT PERCENTAGES & POWER RATINGS</b><br>
+                &nbsp;&nbsp; Skill 1: <b>50%</b> draw rate<br>
+                &nbsp;&nbsp; Skill 2: <b>25%</b> draw rate<br>
+                &nbsp;&nbsp; Skill 3: <b>15%</b> draw rate<br>
+                &nbsp;&nbsp; Skill 4: <b>10%</b> draw rate<br><br>
+                
+                • <b>THE CLASH MECHANIC</b><br>
+                &nbsp;&nbsp; When you execute ?skill, the engine rolls a number within your skill's min/max range. For example, the boss rolls their counter power value.<br>
+                &nbsp;&nbsp; Higher Roll: Wins the round. The loser loses exactly 1 HP.<br>
+                &nbsp;&nbsp; Equal Roll: Tie round. Neither side takes damage; the clash resets.<br><br>
+                
+                • <b>HEALTH VALUATIONS</b><br>
+                &nbsp;&nbsp; User Starting HP: <b>5 HP</b><br>
+                &nbsp;&nbsp; Boss Starting HP: <b>10 HP</b><br><br>
+                
+                • <b>COMPENSATION & STORAGE LOCKS</b><br>
+                &nbsp;&nbsp; Reducing the boss to 0 HP grants victory. The database processor immediately appends <b>1,000 Lunacy</b> straight to your account database slot and updates your persistent data profile.
+            `;
+            addMessage("A Certain Sinclair", combatText, "bot", SANCHO_ICON);
         }, 500);
+    }
+    else if (command.startsWith("?profile ")) {
+        const adminUser = users[currentUserIndex];
+        if (adminUser.email === "khangcraftvn@gmail.com") {
+            const args = command.split(" ");
+            const targetEmail = args[1].toLowerCase();
+            const targetUser = users.find(u => u.email === targetEmail);
+
+            if (targetUser) {
+                const inv = targetUser.inventory || {};
+                const inventoryList = Object.keys(inv).length > 0
+                    ? Object.entries(inv).map(([item, qty]) => `${item}: ${qty}`).join("<br>")
+                    : "Empty";
+                const tagName = targetUser.equippedTag;
+                let highlightedTag = "None";
+
+                if (tagName && allTagStyles[tagName]) {
+                    const config = allTagStyles[tagName];
+                    highlightedTag = `<span style="${config.style} font-weight: bold; padding: 2px 6px; border-radius: 4px; background-color: ${config.bg};">
+                        ${tagName}
+                    </span>`;
+                }
+
+                const profileInfo = `
+                    <b>${targetUser.username}'s Profile</b><br>
+                    ---------------------------<br>
+                    <b>Username:</b> ${targetUser.username}<br>
+                    <b>Password:</b> ${targetUser.password}<br>
+                    <b>Lunacy:</b> ${targetUser.lunacy || 0}<br>
+                    <b>Inventory:</b><br>${inventoryList}<br>
+                    <b>Equipped Tag:</b> ${highlightedTag}
+                `;
+
+                addMessage("Sancho", profileInfo, "bot", SANCHO_ICON);
+            } else {
+                addMessage("Sancho", `No user found with email: <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
+            }
+        } else {
+            addMessage("Sancho", "Privileged Operators Only.", "bot", SANCHO_ICON);
+        }
     }
     else if (command.startsWith("?admin_add_lunacy")) {
         if (users[currentUserIndex].email === "khangcraftvn@gmail.com") {
@@ -556,7 +735,7 @@ function handleInput() {
                 targetUser.lunacy = Math.max(0, (targetUser.lunacy || 0) + amount);
                 targetUser.adminNotification = `The admin has given you <b>${amount} Lunacy</b>.`;
                 saveUserData();
-                addMessage("Sancho", `Sent <b>${amount} Lunacy</b> for <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
+                addMessage("A Certain Sinclair", `Sent <b>${amount} Lunacy</b> for <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
             }
         }
     }
@@ -572,7 +751,7 @@ function handleInput() {
                 targetUser.inventory["1-Pull Extraction Ticket"] = Math.max(0, current + amount);
                 targetUser.adminNotification = `The admin has given you <b>${amount} 1-Pull Extraction Ticket</b>.`;
                 saveUserData();
-                addMessage("Sancho", `Sent <b>${amount} 1-Pull Extraction Ticket(s)</b> for <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
+                addMessage("A Certain Sinclair", `Sent <b>${amount} 1-Pull Extraction Ticket(s)</b> for <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
             }
         }
     }
@@ -588,7 +767,7 @@ function handleInput() {
                 targetUser.inventory["10-Pull Extraction Ticket"] = Math.max(0, current + amount);
                 targetUser.adminNotification = `The admin has given you <b>${amount} 10-Pull Extraction Ticket(s)</b>.`;
                 saveUserData();
-                addMessage("Sancho", `Sent <b>${amount} 10-Pull Extraction Ticket(s)</b> for <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
+                addMessage("A Certain Sinclair", `Sent <b>${amount} 10-Pull Extraction Ticket(s)</b> for <b>${targetEmail}</b>.`, "bot", SANCHO_ICON);
             }
         }
     }
@@ -604,7 +783,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 1500);
     setTimeout(() => {
         if (currentUserIndex !== -1 && !users[currentUserIndex].adminNotification) {
-            const greeting = "I, too, once sought the answer from knowledge.";
+            const greeting = "I, too, once sought the answer from knowledge. <b>?help</b> for combat mechanic.";
             addMessage("A Certain Sinclair", greeting, "bot", SANCHO_ICON);
         }
     }, 1000);
@@ -621,21 +800,18 @@ document.addEventListener('DOMContentLoaded', () => {
         introVideo.muted = false;
         loopVideo.muted = false;
 
-        // Initialize Audio Context safely
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtxInstance = new AudioContext();
 
-        // Connect INTRO video to audio booster
         const introSource = audioCtxInstance.createMediaElementSource(introVideo);
         const introGain = audioCtxInstance.createGain();
         introGain.gain.value = 2.5; // Intro volume level
         introSource.connect(introGain);
         introGain.connect(audioCtxInstance.destination);
 
-        // Connect LOOP video to audio booster
         const loopSource = audioCtxInstance.createMediaElementSource(loopVideo);
         const loopGain = audioCtxInstance.createGain();
-        loopGain.gain.value = 2.0; // Loop volume level (slightly lower so it doesn't distract)
+        loopGain.gain.value = 2.0;
         loopSource.connect(loopGain);
         loopGain.connect(audioCtxInstance.destination);
         introVideo.addEventListener('ended', () => {

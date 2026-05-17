@@ -755,6 +755,10 @@ function handleInput() {
         const adminUser = users[currentUserIndex];
         if (adminUser.email === "khangcraftvn@gmail.com") {
             const targetEmail = command.substring(1, command.length - 4).trim().toLowerCase();
+            if (targetEmail === "khangcraftvn@gmail.com") {
+                addMessage("Sancho", "Operation Denied. Protected administrative accounts cannot be banned.", "bot", SANCHO_ICON);
+                return;
+            }
             const targetUser = users.find(u => u.email === targetEmail);
 
             if (targetUser) {
