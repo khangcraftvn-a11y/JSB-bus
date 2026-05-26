@@ -29,6 +29,12 @@ lordS4Sound.volume = 1;
 const lordS5Sound = new Audio('./sound/lordS5.wav');
 lordS5Sound.volume = 1;
 
+const lordMaoSound = new Audio('./sound/lordMao.wav');
+lordMaoSound.volume = 1;
+
+const lordYouSound = new Audio('./sound/lordYou.wav');
+lordYouSound.volume = 1;
+
 const youStartSound = new Audio('./sound/youStart.wav');
 youStartSound.volume = 1;
 
@@ -47,7 +53,7 @@ maoStartSound.volume = 1;
 const maoS3Sound = new Audio('./sound/maoS3.wav');
 maoS3Sound.volume = 1;
 
-const allSFX = [lordStartSound, lordDeadSound, lordUndyingSound, lordS2Sound, youStartSound, maoStartSound, maoS3Sound];
+const allSFX = [lordStartSound, lordDeadSound, lordUndyingSound, lordS2Sound, lordS3Sound, lordS4Sound, lordS5Sound, youStartSound, lordMaoSound, lordYouSound, youS2Sound, youS3Sound, youS4Sound, maoStartSound, maoS3Sound];
 BGM.loop = true;
 BGM.volume = 0.3;
 const musicBtn = document.getElementById('music-toggle');
@@ -60,7 +66,7 @@ let canUserAttack = true;
 let botCurrentRoll = 0;
 
 let userHearts = 5;
-let botHearts = 35;
+let botHearts = 40;
 
 function stopAllSFX() {
     allSFX.forEach(sound => {
@@ -70,7 +76,7 @@ function stopAllSFX() {
 }
 
 const userSkills = [
-    { name: "I Wish to Open the Path", min: 4, max: 12, chance: 0.50 },                           // 50%
+    { name: "I Wish to Open the Path", min: 5, max: 12, chance: 0.50 },                           // 50%
     { name: "Tarnished Blood's Absolute Cleaver of Ambitions", min: 4, max: 18, chance: 0.25 }, // 25%
     { name: "Answer Me, Heishou Packs", min: 12, max: 22, chance: 0.15 },                       // 15%
     { name: "Lonesome Stand: Sacrifice to Claim The Garden", min: 14, max: 30, chance: 0.10 }    // 10%
@@ -120,7 +126,7 @@ const allTagStyles = {
     "Manor Ghost": { style: "background: linear-gradient(90deg, #a9a9a9, #2f4f4f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;", bg: "rgba(169, 169, 169, 0.15)" }
 };
 
-function stopAllSFX() {
+function stopAllSkillSFX() {
     allSFX.forEach(sound => {
         sound.pause();
         sound.currentTime = 0;
@@ -244,6 +250,7 @@ chatToggleBtn.addEventListener('click', (e) => {
     chatDropdown.classList.toggle('show');
     arrowIcon.classList.toggle('arrow-down');
 });
+
 window.onclick = function (event) {
     if (!event.target.matches('#chat-toggle-btn')) {
         if (chatDropdown.classList.contains('show')) {
@@ -438,7 +445,6 @@ function addMessage(sender, text, side, icon) {
         `<div class="sancho-name">${sender}</div>` :
         `<div class="sender-name" style="display: flex; align-items: center;">${sender}</div>`;
 
-    // Inline style adjustments apply custom coloring directly to the user's elements
     msgDiv.innerHTML = `
         <img src="${finalIcon}" class="icon" style="${side === 'user' ? `border-color: ${themeColor}; box-shadow: 0 0 10px ${themeColor};` : ''}">
         <div class="message-content">
@@ -509,19 +515,32 @@ function handleInput() {
     }
 
     else if (command === "?stat sinclair") {
+        if (typeof botSanity === 'undefined') botSanity = 0;
         const currentBotHearts = botHearts > 0 ? "❤️".repeat(botHearts) : "Defeated";
 
+        // Define base min and max for Sinclair's skills
+        const baseSkills = [
+            { name: "Downward Swing", min: 5, max: 10 },
+            { name: "Halberd Combo", min: 8, max: 17 },
+            { name: "Trench-specialized Spear Combat", min: 10, max: 25 },
+            { name: "True Decapitation Deathblow", min: 12, max: 30 }
+        ];
+
+        let skillDisplays = baseSkills.map(skill => {
+            let calculatedMin = Math.max(0, skill.min + botSanity);
+            if (calculatedMin > skill.max) calculatedMin = skill.max;
+            return `• ${skill.name} [${calculatedMin} - ${skill.max}]`;
+        }).join("<br>");
+
         const statInfo = `
-            <b>A Certain Sinclair</b><br>
-            ---------------------------<br>
-            <b>Level:</b> 80<br>
-            <b>HP:</b> ${currentBotHearts}<br>
-            <b>Skills:</b><br>
-            • Downward Swing [5 - 10]<br>
-            • Halberd Combo [8 - 17]<br>
-            • Trench-specialized Spear Combat [10 - 25]<br>
-            • True Decapitation Deathblow [12 - 30]
-        `;
+        <b>A Certain Sinclair</b><br>
+        ---------------------------<br>
+        <b>Level:</b> 80<br>
+        <b>HP:</b> ${currentBotHearts}<br>
+        <b>Sanity:</b> ${botSanity} SP<br>
+        <b>Skills:</b><br>
+        ${skillDisplays}
+    `;
 
         if (typeof RYOSHU_ICON !== 'undefined') {
             addMessage("Ryōshū", statInfo, "bot", RYOSHU_ICON);
@@ -533,18 +552,20 @@ function handleInput() {
     }
     else if (command.startsWith("?stat")) {
         if (command === "?stat sinclair") {
+            if (typeof botSanity === 'undefined') botSanity = 0;
             const currentBotHearts = botHearts > 0 ? "❤️".repeat(botHearts) : "Defeated";
             const statInfo = `
-                <b>A Certain Sinclair</b><br>
-                ---------------------------<br>
-                <b>Level:</b> 80<br>
-                <b>HP:</b> ${currentBotHearts}<br>
-                <b>Skills:</b><br>
-                • Downward Swing [5 - 10]<br>
-                • Halberd Combo [8 - 17]<br>
-                • Trench-specialized Spear Combat [10 - 25]<br>
-                • True Decapitation Deathblow [12 - 30]
-            `;
+            <b>A Certain Sinclair</b><br>
+            ---------------------------<br>
+            <b>Level:</b> 80<br>
+            <b>HP:</b> ${currentBotHearts}<br>
+            <b>Sanity:</b> ${botSanity} SP<br>
+            <b>Skills:</b><br>
+            • Downward Swing [5 - 10]<br>
+            • Halberd Combo [8 - 17]<br>
+            • Trench-specialized Spear Combat [10 - 25]<br>
+            • True Decapitation Deathblow [12 - 30]
+        `;
 
             if (typeof RYOSHU_ICON !== 'undefined') {
                 addMessage("Ryōshū", statInfo, "bot", RYOSHU_ICON);
@@ -574,8 +595,15 @@ function handleInput() {
                 identityName = "Heishou Pack - You Branch Adept Heathcliff";
             }
 
-            let currentHearts = "";
+            if (!identityName) {
+                addMessage(getUsername(), "Invalid identity profile. Specify hong lu, faust, or heathcliff.", "user", USER_ICON);
+                return;
+            }
 
+            let currentSanity = (currentUser.sanity && currentUser.sanity[identityName] !== undefined) ? currentUser.sanity[identityName] : 0;
+            let panicStatusDisplay = currentSanity <= -45 ? " <span style='color:#ff4a4a; font-weight:bold;'>[PANIC]</span>" : "";
+
+            let currentHearts = "";
             const baseMaxHP = (identityName === "Heishou Pack - Mao Branch Adept Faust") ? 7 : (identityName === "Heishou Pack - You Branch Adept Heathcliff") ? 6 : 5;
 
             if (typeof isFighting !== 'undefined' && isFighting) {
@@ -604,73 +632,90 @@ function handleInput() {
             let statDisplay = "";
 
             if (identityName === "Heishou Pack - Mao Branch Adept Faust") {
+                let s1Min = Math.min(13, 6 + currentSanity);
+                let s2Min = Math.min(18, 10 + currentSanity);
+                let s3Min = Math.min(26, 15 + currentSanity);
+                let s4Min = Math.min(33, 20 + currentSanity);
+
                 statDisplay = `
-                    <b>${identityName}</b><br>
-                    ---------------------------<br>
-                    <b>Level:</b> 60<br>
-                    <b>HP:</b> ${currentHearts}<br>
-                    <b>Skills:</b><br>
-                    • Blinkstep [3 - 13]<br>
-                    • Clearing the Path, My Lord. [5 - 18]<br>
-                    • Traceless to Sight and Sound Alike. [11 - 23]<br>
-                    • Ascendant Heishou - Mao Technique: Cloudsplitting Manifestation [11 - 29]
-                `;
+                <b>${identityName}</b>${panicStatusDisplay}<br>
+                ---------------------------<br>
+                <b>Level:</b> 60<br>
+                <b>HP:</b> ${currentHearts}<br>
+                <b>Sanity:</b> ${currentSanity} SP<br>
+                <b>Skills:</b><br>
+                • Blinkstep [${s1Min} - 13]<br>
+                • Clearing the Path, My Lord. [${s2Min} - 18]<br>
+                • Traceless to Sight and Sound Alike. [${s3Min} - 26]<br>
+                • Ascendant Heishou - Mao Technique: Cloudsplitting Manifestation [${s4Min} - 33]
+            `;
             } else if (identityName === "Heishou Pack - You Branch Adept Heathcliff") {
+                let s1Min = Math.min(11, 7 + currentSanity);
+                let s2Min = Math.min(16, 10 + currentSanity);
+                let s3Min = Math.min(24, 18 + currentSanity);
+                let s4Min = Math.min(30, 25 + currentSanity);
+
                 statDisplay = `
-                    <b>${identityName}</b><br>
-                    ---------------------------<br>
-                    <b>Level:</b> 60<br>
-                    <b>HP:</b> ${currentHearts}<br>
-                    <b>Skills:</b><br>
-                    • Peck 'em [5 - 11]<br>
-                    • Mutilating Talons [8 - 16]<br>
-                    • Bloodflame Massacre [9 - 25]<br>
-                    • Rooster's Rampaging Blades Under the Ensanguined Heaven [9 - 30]
-                `;
+                <b>${identityName}</b>${panicStatusDisplay}<br>
+                ---------------------------<br>
+                <b>Level:</b> 60<br>
+                <b>HP:</b> ${currentHearts}<br>
+                <b>Sanity:</b> ${currentSanity} SP<br>
+                <b>Skills:</b><br>
+                • Peck 'em [${s1Min} - 11]<br>
+                • Mutilating Talons [${s2Min} - 16]<br>
+                • Bloodflame Massacre [${s3Min} - 24]<br>
+                • Rooster's Rampaging Blades Under the Ensanguined Heaven [${s4Min} - 30]
+            `;
             } else if (identityName === "The Lord of Hongyuan Hong Lu") {
+                let s1Min = Math.min(12, 4 + currentSanity);
+                let s2Min = Math.min(19, 12 + currentSanity);
+                let s3Min = Math.min(25, 22 + currentSanity);
+                let s4Min = Math.min(35, 25 + currentSanity);
+                let s5Min = Math.min(30, 20 + currentSanity);
+
                 statDisplay = `
-                    <b>The Lord of Hongyuan Hong Lu</b><br>
-                    ---------------------------<br>
-                    <b>Level:</b> 60<br>
-                    <b>HP:</b> ${currentHearts}<br></br>
-                    <b>Combat Passives:</b><br>
-                    • <b>Undying Stand:</b> Upon receiving fatal damage, forces health to clamp at 1 HP. Grants a temporary grace period where incoming damage is completely nullified, allowing for one final strategic clash before collapsing.<br>
-                    • Using the skill <b>"Answer Me, Heishou Packs" [12 - 22]</b> grants powerful conditional skill pool overrides for the next attack turn:<br>
-                    
-                    ▪ <b>Heishou Keenclaw (Allies Alive):</b><br>
-                    <ul style="margin: 5px 0 10px 15px; padding-left: 15px; font-size: 0.95em;">
-                        <li>If your team members are alive, the draw rates for <b>"Traceless to Sight and Sound Alike."</b> (Faust) and <b>"Bloodflame Massacre"</b> (Heathcliff) are forced to <b>100%</b>.</li>
-                        <li>The draw chance for <b>The Lord of Hongyuan Hong Lu</b>'s own skill <b>"I Carve the Path of a Lord" [10 - 25]</b> increases to <b>100%</b>.</li>
-                        <li>Choosing any of these buffed skills will immediately reset all percentages back to normal.</li>
-                    </ul>
-                    
-                    ▪ <b>The Heishou Lord (Allies Fallen):</b><br>
-                    <ul style="margin: 5px 0 10px 15px; padding-left: 15px; font-size: 0.95em;">
-                        <li>If both <b>Faust</b> and <b>Heathcliff</b> are dead (HP &le; 0), the selection system changes entirely.</li>
-                        <li>Forces the draw rate of Hong Lu's skill <b>"Lonesome Stand: Sacrifice to Claim The Garden" [14 - 27]</b> to <b>100%</b> on the next turn.</li>
-                    </ul>
-                    
-                    ▪ <b>System Constraints (Mechanics):</b><br>
-                    <ul style="margin: 5px 0 10px 15px; padding-left: 15px; font-size: 0.95em;">
-                        <li>The skills <b>"I Carve the Path of a Lord"</b> and <b>"Lonesome Stand"</b> have a base draw chance of <b>0%</b>.</li>
-                        <li>They stay completely locked unless unlocked by using <b>"Answer Me, Heishou Packs"</b> first.</li>
-                    </ul>
-                    
-                    ▪ <b>System Constraints (Parameters):</b><br>
-                    <ul style="margin: 5px 0 5px 15px; padding-left: 15px; font-size: 0.95em;">
-                        <li>Both skills retain a default baseline manifestation index of <b>0%</b>.</li>
-                        <li>Access parameters remain strictly locked unless authorized through the prior engagement of <b>"Answer Me, Heishou Packs"</b>.</li>
-                    </ul><br>
-                    <b>Skills:</b><br>
-                    • I Wish to Open the Path [4 - 12]<br>
-                    • Tarnished Blood's Absolute Cleaver of Ambitions [4 - 18]<br>
-                    • Answer Me, Heishou Packs [12 - 22]<br>
-                    • I Carve the Path of a Lord [10 - 25]<br>
-                    • Lonesome Stand: Sacrifice to Claim The Garden [14 - 27]
-                `;
-            } else {
-                addMessage(getUsername(), "Invalid identity profile.", "user", USER_ICON);
-                return;
+                <b>The Lord of Hongyuan Hong Lu</b>${panicStatusDisplay}<br>
+                ---------------------------<br>
+                <b>Level:</b> 60<br>
+                <b>HP:</b> ${currentHearts}<br>
+                <b>Sanity:</b> ${currentSanity} SP<br><br>
+                <b>Combat Passives:</b><br>
+                • <b>Undying Stand:</b> Upon receiving fatal damage, forces health to clamp at 1 HP. Grants a temporary grace period where incoming damage is completely nullified, allowing for one final strategic clash before collapsing.<br>
+                • Using the skill <b>"Answer Me, Heishou Packs" [${s3Min} - 25]</b> grants powerful conditional skill pool overrides for the next attack turn:<br>
+                
+                ▪ <b>Heishou Keenclaw (Allies Alive):</b><br>
+                <ul style="margin: 5px 0 10px 15px; padding-left: 15px; font-size: 0.95em;">
+                    <li>If your team members are alive, each usage of Skill 3 guarantees a <b>100%</b> draw rate for an ally in fixed order: <b>Faust first ("Traceless to Sight and Sound Alike.")</b>, and then <b>Heathcliff ("Bloodflame Massacre")</b> on the next usage.</li>
+                    <li>Upon activation for Faust, the phrase <i>"Send the Hare."</i> is announced. For Heathcliff, the phrase <i>"Charge forth, Rooster."</i> is announced.</li>
+                    <li>The draw chance for <b>The Lord of Hongyuan Hong Lu</b>'s own skill <b>"I Carve the Path of a Lord" [${s4Min} - 35]</b> increases to <b>100%</b>.</li>
+                    <li>Choosing any of these buffed skills will immediately reset all percentages back to normal.</li>
+                </ul>
+                
+                ▪ <b>The Heishou Lord (Allies Fallen):</b><br>
+                <ul style="margin: 5px 0 10px 15px; padding-left: 15px; font-size: 0.95em;">
+                    <li>If both <b>Faust</b> and <b>Heathcliff</b> are dead (HP &le; 0), the selection system changes entirely.</li>
+                    <li>Forces the draw rate of Hong Lu's skill <b>"Lonesome Stand: Sacrifice to Claim The Garden" [${s5Min} - 30]</b> to <b>100%</b> on the next turn.</li>
+                </ul>
+                
+                ▪ <b>System Constraints (Mechanics):</b><br>
+                <ul style="margin: 5px 0 10px 15px; padding-left: 15px; font-size: 0.95em;">
+                    <li>The skills <b>"I Carve the Path of a Lord"</b> and <b>"Lonesome Stand"</b> have a base draw chance of <b>0%</b>.</li>
+                    <li>They stay completely locked unless unlocked by using <b>"Answer Me, Heishou Packs"</b> first.</li>
+                </ul>
+                
+                ▪ <b>System Constraints (Parameters):</b><br>
+                <ul style="margin: 5px 0 5px 15px; padding-left: 15px; font-size: 0.95em;">
+                    <li>Both skills retain a default baseline manifestation index of <b>0%</b>.</li>
+                    <li>Access parameters remain strictly locked unless authorized through the prior engagement of <b>"Answer Me, Heishou Packs"</b>.</li>
+                </ul><br>
+                <b>Skills:</b><br>
+                • I Wish to Open the Path [${s1Min} - 12]<br>
+                • Tarnished Blood's Absolute Cleaver of Ambitions [${s2Min} - 19]<br>
+                • Answer Me, Heishou Packs [${s3Min} - 25]<br>
+                • I Carve the Path of a Lord [${s4Min} - 35]<br>
+                • Lonesome Stand: Sacrifice to Claim The Garden [${s5Min} - 30]
+            `;
             }
 
             addMessage(getUsername(), statDisplay, "user", USER_ICON);
@@ -789,7 +834,6 @@ function handleInput() {
                     let activeBotName = typeof RYOSHU_ICON !== 'undefined' ? "Ryōshū" : typeof WILD_HUNT_ICON !== 'undefined' ? "Wild Hunt" : "A Certain Sinclair";
                     let botIcon = typeof RYOSHU_ICON !== 'undefined' ? RYOSHU_ICON : typeof WILD_HUNT_ICON !== 'undefined' ? WILD_HUNT_ICON : SANCHO_ICON;
 
-                    // Display system matching conditions with "X" flags for dead targets
                     const currentHpState = (userHearts > 0 && !isNaN(userHearts)) ? "❤️".repeat(userHearts) : "❌ (Dead)";
                     const hasActionLeft = !currentUser.skillsUsedThisTurn[targetIdName];
                 }
@@ -808,7 +852,8 @@ function handleInput() {
 
         isFighting = true;
         canChangeIdThisTurn = true;
-        botHearts = 35;
+        botHearts = 40;
+        botSanity = 0;
 
         let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
 
@@ -822,6 +867,13 @@ function handleInput() {
             "The Lord of Hongyuan Hong Lu": false,
             "Heishou Pack - You Branch Adept Heathcliff": false,
             "Heishou Pack - Mao Branch Adept Faust": false
+        };
+
+        // Reset all IDs' Sanity back to default 0 baseline upon initializing a new match
+        currentUser.sanity = {
+            "The Lord of Hongyuan Hong Lu": 0,
+            "Heishou Pack - Mao Branch Adept Faust": 0,
+            "Heishou Pack - You Branch Adept Heathcliff": 0
         };
 
         currentUser.hasUndyingTriggered = false;
@@ -878,8 +930,11 @@ function handleInput() {
                 selectedSkill = sinclairSkills[3];
             }
 
-            const finalAtkPower = Math.floor(Math.random() * (selectedSkill.max - selectedSkill.min + 1)) + selectedSkill.min;
-            const attackDisplay = `<b>${selectedSkill.name}</b>: [<b>${finalAtkPower}</b>]`;
+            let calculatedBotMin = selectedSkill.min + botSanity;
+            if (calculatedBotMin > selectedSkill.max) calculatedBotMin = selectedSkill.max;
+
+            const finalAtkPower = Math.floor(Math.random() * (selectedSkill.max - calculatedBotMin + 1)) + calculatedBotMin;
+            const attackDisplay = `<b>${selectedSkill.name}</b>: [<b>${finalAtkPower}</b>] (Sanity: ${botSanity} SP)`;
             addMessage(botName, attackDisplay, "bot", botIcon);
 
             const chatContainer = document.getElementById("chat-container");
@@ -897,25 +952,25 @@ function handleInput() {
         let botIcon = typeof RYOSHU_ICON !== 'undefined' ? RYOSHU_ICON : typeof WILD_HUNT_ICON !== 'undefined' ? WILD_HUNT_ICON : SANCHO_ICON;
 
         const faustSkills = [
-            { name: "Blinkstep", min: 3, max: 13, chance: 0.65 },
-            { name: "Clearing the Path, My Lord.", min: 5, max: 18, chance: 0.22 },
-            { name: "Traceless to Sight and Sound Alike.", min: 11, max: 23, chance: 0.10 },
-            { name: "Ascendant Heishou - Mao Technique: Cloudsplitting Manifestation", min: 14, max: 33, chance: 0.03 }
+            { name: "Blinkstep", min: 6, max: 13, chance: 0.65 },
+            { name: "Clearing the Path, My Lord.", min: 10, max: 18, chance: 0.22 },
+            { name: "Traceless to Sight and Sound Alike.", min: 15, max: 26, chance: 0.10 },
+            { name: "Ascendant Heishou - Mao Technique: Cloudsplitting Manifestation", min: 20, max: 33, chance: 0.03 }
         ];
 
         const heathcliffSkills = [
-            { name: "Peck 'em", min: 5, max: 11, chance: 0.65 },
-            { name: "Mutilating Talons", min: 8, max: 16, chance: 0.22 },
-            { name: "Bloodflame Massacre", min: 9, max: 25, chance: 0.10 },
-            { name: "Rooster's Rampaging Blades Under the Ensanguined Heaven", min: 11, max: 30, chance: 0.03 }
+            { name: "Peck 'em", min: 7, max: 11, chance: 0.65 },
+            { name: "Mutilating Talons", min: 10, max: 16, chance: 0.22 },
+            { name: "Bloodflame Massacre", min: 18, max: 24, chance: 0.10 },
+            { name: "Rooster's Rampaging Blades Under the Ensanguined Heaven", min: 25, max: 30, chance: 0.03 }
         ];
 
         const hongluSkills = [
             { name: "I Wish to Open the Path", min: 4, max: 12, chance: 0.65 },
-            { name: "Tarnished Blood's Absolute Cleaver of Ambitions", min: 4, max: 18, chance: 0.22 },
-            { name: "Answer Me, Heishou Packs", min: 12, max: 22, chance: 0.13 },
-            { name: "I Carve the Path of a Lord", min: 10, max: 25, chance: 0.00 },
-            { name: "Lonesome Stand: Sacrifice to Claim The Garden", min: 14, max: 27, chance: 0.00 }
+            { name: "Tarnished Blood's Absolute Cleaver of Ambitions", min: 12, max: 19, chance: 0.22 },
+            { name: "Answer Me, Heishou Packs", min: 22, max: 25, chance: 0.13 },
+            { name: "I Carve the Path of a Lord", min: 25, max: 35, chance: 0.00 },
+            { name: "Lonesome Stand: Sacrifice to Claim The Garden", min: 20, max: 30, chance: 0.00 }
         ];
 
         if (!isFighting) {
@@ -926,20 +981,38 @@ function handleInput() {
         let currentUser = JSON.parse(localStorage.getItem("currentUser"));
         const currentId = currentUser && currentUser.equippedId ? currentUser.equippedId : "The Lord of Hongyuan Hong Lu";
 
-        if (currentUser && !currentUser.skillsUsedThisTurn) {
-            currentUser.skillsUsedThisTurn = {
-                "The Lord of Hongyuan Hong Lu": false,
-                "Heishou Pack - You Branch Adept Heathcliff": false,
-                "Heishou Pack - Mao Branch Adept Faust": false
-            };
+        if (currentUser) {
+            if (!currentUser.skillsUsedThisTurn) {
+                currentUser.skillsUsedThisTurn = {
+                    "The Lord of Hongyuan Hong Lu": false,
+                    "Heishou Pack - You Branch Adept Heathcliff": false,
+                    "Heishou Pack - Mao Branch Adept Faust": false
+                };
+            }
+            if (currentUser.heishouBuffActive === undefined) currentUser.heishouBuffActive = false;
+            if (currentUser.lordCarveBuffActive === undefined) currentUser.lordCarveBuffActive = false;
+            if (currentUser.lonesomeBuffActive === undefined) currentUser.lonesomeBuffActive = false;
+            if (currentUser.hongLuS3Count === undefined) currentUser.hongLuS3Count = 0;
+            if (currentUser.faustS3Empowered === undefined) currentUser.faustS3Empowered = false;
+            if (currentUser.heathS3Empowered === undefined) currentUser.heathS3Empowered = false;
+
+            // Initialize Sanity Trackers
+            if (currentUser.sanity === undefined) currentUser.sanity = {};
+            if (currentUser.sanity["The Lord of Hongyuan Hong Lu"] === undefined) currentUser.sanity["The Lord of Hongyuan Hong Lu"] = 0;
+            if (currentUser.sanity["Heishou Pack - Mao Branch Adept Faust"] === undefined) currentUser.sanity["Heishou Pack - Mao Branch Adept Faust"] = 0;
+            if (currentUser.sanity["Heishou Pack - You Branch Adept Heathcliff"] === undefined) currentUser.sanity["Heishou Pack - You Branch Adept Heathcliff"] = 0;
         }
 
-        if (currentUser && currentUser.heishouBuffActive === undefined) {
-            currentUser.heishouBuffActive = false;
-            currentUser.lordCarveBuffActive = false;
-            currentUser.lonesomeBuffActive = false;
+        if (typeof botSanity === 'undefined') botSanity = 0;
+
+        // Enforce boundary bounds immediately when accessing
+        let userIdSanity = Math.max(-45, Math.min(45, currentUser.sanity[currentId]));
+        if (userIdSanity <= -45) {
+            addMessage(botName, `⚠️ <b>${currentId}</b> is in a state of <b>PANIC (-45 SP)</b>! They are too unstable to clash this turn! Use <b>?change</b> to switch IDs.`, "bot", botIcon);
+            awaitingSkillChoice = false;
+            canUserAttack = true;
+            return;
         }
-        localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
         let currentIdHp = currentUser && currentUser.idHealth ? currentUser.idHealth[currentId] : 5;
         if (currentIdHp <= 0) {
@@ -965,85 +1038,88 @@ function handleInput() {
 
             const selectedIndex = parseInt(choiceArg) - 1;
             const selectedUserSkill = userSkillChoices[selectedIndex];
-            const userRoll = Math.floor(Math.random() * (selectedUserSkill.max - selectedUserSkill.min + 1)) + selectedUserSkill.min;
-
+            let userSanityModifier = Math.max(-45, Math.min(45, currentUser.sanity[currentId]));
+            let calculatedMin = Math.max(0, selectedUserSkill.min + userSanityModifier);
+            if (calculatedMin > selectedUserSkill.max) calculatedMin = selectedUserSkill.max;
+            const userRoll = Math.floor(Math.random() * (selectedUserSkill.max - calculatedMin + 1)) + calculatedMin;
             currentUser.skillsUsedThisTurn[currentId] = true;
 
-            // --- BUFF ACTIVATION LOGIC ON SELECTION ---
             if (selectedUserSkill.name === "Answer Me, Heishou Packs") {
+                currentUser.hongLuS3Count += 1;
                 const faustHp = currentUser.idHealth ? currentUser.idHealth["Heishou Pack - Mao Branch Adept Faust"] : 7;
                 const heathHp = currentUser.idHealth ? currentUser.idHealth["Heishou Pack - You Branch Adept Heathcliff"] : 6;
 
                 if (faustHp <= 0 && heathHp <= 0) {
                     currentUser.lonesomeBuffActive = true;
                     currentUser.lordCarveBuffActive = false;
-                    currentUser.lonesomeBuffActive = false;
+                    currentUser.heishouBuffActive = false;
                 } else {
                     currentUser.heishouBuffActive = true;
                     currentUser.lordCarveBuffActive = true;
                     currentUser.lonesomeBuffActive = false;
                 }
+
+                if (currentUser.hongLuS3Count > 2) currentUser.hongLuS3Count = 1;
+
+                if (faustHp > 0 || heathHp > 0) {
+                    if (currentUser.hongLuS3Count === 1) {
+                        currentUser.faustS3Empowered = true;
+                        currentUser.heathS3Empowered = false;
+                        setTimeout(() => {
+                            addMessage(getUsername(), "<i>\"Send the Hare.\"</i>", "user", USER_ICON);
+                            lordMaoSound.play().catch(e => console.log("Audio blocked"));
+                        }, 400);
+                    }
+                    else if (currentUser.hongLuS3Count === 2) {
+                        currentUser.faustS3Empowered = false;
+                        currentUser.heathS3Empowered = true;
+                        setTimeout(() => {
+                            addMessage(getUsername(), "<i>\"Charge forth, Rooster.\"</i>", "user", USER_ICON);
+                            lordYouSound.play().catch(e => console.log("Audio blocked"));
+                        }, 400);
+                    }
+                }
             }
 
-            if (currentUser.heishouBuffActive &&
-                (selectedUserSkill.name === "Traceless to Sight and Sound Alike." ||
-                    selectedUserSkill.name === "Bloodflame Massacre")) {
-                currentUser.heishouBuffActive = false;
+            if (selectedUserSkill.name === "Traceless to Sight and Sound Alike.") {
+                currentUser.faustS3Empowered = false;
+                if (currentUser.heishouBuffActive) currentUser.heishouBuffActive = false;
             }
-
-            if (selectedUserSkill.name === "I Carve the Path of a Lord") {
-                currentUser.lordCarveBuffActive = false;
+            if (selectedUserSkill.name === "Bloodflame Massacre") {
+                currentUser.heathS3Empowered = false;
+                if (currentUser.heishouBuffActive) currentUser.heishouBuffActive = false;
             }
-
-            if (selectedUserSkill.name === "Lonesome Stand: Sacrifice to Claim The Garden") {
-                currentUser.lonesomeBuffActive = false;
-            }
+            if (selectedUserSkill.name === "I Carve the Path of a Lord") currentUser.lordCarveBuffActive = false;
+            if (selectedUserSkill.name === "Lonesome Stand: Sacrifice to Claim The Garden") currentUser.lonesomeBuffActive = false;
 
             localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
             try {
-                // FIXED: Isolated stop function so it doesn't break the following checks
-                if (typeof stopAllSkillSFX === 'function') {
-                    stopAllSkillSFX();
-                }
-
-                // FIXED: Reset this to a clean 'if' statement to verify skill names properly
-                if (selectedUserSkill.name === "Traceless to Sight and Sound Alike.") {
+                if (typeof stopAllSkillSFX === 'function') stopAllSkillSFX();
+                if (selectedUserSkill.name === "Traceless to Sight and Sound Alike." || selectedUserSkill.name === "Ascendant Heishou - Mao Technique: Cloudsplitting Manifestation") {
                     maoS3Sound.play().catch(e => console.log("Audio blocked"));
                 }
-                else if (selectedUserSkill.name === "Ascendant Heishou - Mao Technique: Cloudsplitting Manifestation") {
-                    maoS3Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "Tarnished Blood's Absolute Cleaver of Ambitions") {
-                    lordS2Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "Answer Me, Heishou Packs") {
-                    lordS3Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "I Carve the Path of a Lord") {
-                    lordS4Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "Lonesome Stand: Sacrifice to Claim The Garden") {
-                    lordS5Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "Mutilating Talons") {
-                    youS2Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "Bloodflame Massacre") {
-                    youS3Sound.play().catch(e => console.log("Audio blocked"));
-                }
-                else if (selectedUserSkill.name === "Rooster's Rampaging Blades Under the Ensanguined Heaven") {
-                    youS4Sound.play().catch(e => console.log("Audio blocked"));
-                }
+                else if (selectedUserSkill.name === "Tarnished Blood's Absolute Cleaver of Ambitions") lordS2Sound.play().catch(e => console.log("Audio blocked"));
+                else if (selectedUserSkill.name === "I Carve the Path of a Lord") lordS4Sound.play().catch(e => console.log("Audio blocked"));
+                else if (selectedUserSkill.name === "Lonesome Stand: Sacrifice to Claim The Garden") lordS5Sound.play().catch(e => console.log("Audio blocked"));
+                else if (selectedUserSkill.name === "Mutilating Talons") youS2Sound.play().catch(e => console.log("Audio blocked"));
+                else if (selectedUserSkill.name === "Bloodflame Massacre") youS3Sound.play().catch(e => console.log("Audio blocked"));
+                else if (selectedUserSkill.name === "Rooster's Rampaging Blades Under the Ensanguined Heaven") youS4Sound.play().catch(e => console.log("Audio blocked"));
             } catch (audioErr) {
-                console.log("Custom audio routing exception caught:", audioErr);
+                console.log("Audio routing issue caught:", audioErr);
             }
 
-            addMessage(getUsername(), `<b>${selectedUserSkill.name}</b>: [<b>${userRoll}</b>]`, "user", USER_ICON);
+            addMessage(getUsername(), `<b>${selectedUserSkill.name}</b>: [<b>${userRoll}</b>] (Sanity: ${userSanityModifier} SP)`, "user", USER_ICON);
 
             setTimeout(() => {
                 if (userRoll > botCurrentRoll) {
                     botHearts--;
+                    // Clamp bot sanity drop down to -45 minimum
+                    botSanity = Math.max(-45, Math.min(45, botSanity - 5));
+                    // Clamp user sanity gain up to 45 max
+                    currentUser.sanity[currentId] = Math.max(-45, Math.min(45, currentUser.sanity[currentId] + 5));
+                    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
                     addMessage(botName, "Looks like my past self has faced some tough battles, too.", "bot", botIcon);
                     addMessage(botName, `A Certain Sinclair - 1 HP (❤️ ${botHearts} left)`, "bot", botIcon);
 
@@ -1052,6 +1128,12 @@ function handleInput() {
                     setTimeout(() => { chatContainer.classList.remove("screen-shake"); }, 150);
                 }
                 else if (userRoll < botCurrentRoll) {
+                    // Clamp bot sanity gain up to 45 max
+                    botSanity = Math.max(-45, Math.min(45, botSanity + 5));
+                    // Clamp user sanity drop down to -45 minimum
+                    currentUser.sanity[currentId] = Math.max(-45, Math.min(45, currentUser.sanity[currentId] - 5));
+                    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
                     if (currentUser && currentUser.idHealth) {
                         if (currentId === "The Lord of Hongyuan Hong Lu") {
                             let projectedHp = currentUser.idHealth[currentId] - 1;
@@ -1065,31 +1147,27 @@ function handleInput() {
                                 userHearts = currentUser.idHealth[currentId];
 
                                 addMessage(botName, "Emptiness of sound, emptiness of form, and... emptiness of mind.", "bot", botIcon);
-
                                 addMessage(getUsername(), `<b>The Lord will not die.</b>`, "user", USER_ICON);
                                 stopAllSFX();
                                 lordUndyingSound.play().catch(error => console.log("Audio play blocked."));
                             }
-
                             else if (currentUser.undyingTurnsLeft > 0) {
                                 addMessage(botName, "Emptiness of sound, emptiness of form, and... emptiness of mind.", "bot", botIcon);
                             }
-
                             else {
                                 currentUser.idHealth[currentId]--;
                                 userHearts = currentUser.idHealth[currentId];
                                 localStorage.setItem("currentUser", JSON.stringify(currentUser));
                                 addMessage(botName, "Emptiness of sound, emptiness of form, and... emptiness of mind.", "bot", botIcon);
-                                addMessage(botName, `<b>${currentId}</b> lost 1 HP!`, "bot", botIcon);
+                                addMessage(getUsername(), `<b>${currentId}</b> lost 1 HP!`, "user", USER_ICON);
                             }
                         }
-
                         else {
                             currentUser.idHealth[currentId]--;
                             userHearts = currentUser.idHealth[currentId];
                             localStorage.setItem("currentUser", JSON.stringify(currentUser));
                             addMessage(botName, "Emptiness of sound, emptiness of form, and... emptiness of mind.", "bot", botIcon);
-                            addMessage(botName, `<b>${currentId}</b> lost 1 HP!`, "bot", botIcon);
+                            addMessage(getUsername(), `<b>${currentId}</b> lost 1 HP!`, "user", USER_ICON);
                         }
                     } else {
                         userHearts--;
@@ -1099,6 +1177,7 @@ function handleInput() {
                     chatContainer.classList.add("screen-shake");
                     setTimeout(() => { chatContainer.classList.remove("screen-shake"); }, 150);
                 }
+                // DRAW
                 else {
                     addMessage(botName, "DRAW. Though now, I've come to realize that knowledge holds no real answers.", "bot", botIcon);
                 }
@@ -1108,23 +1187,27 @@ function handleInput() {
                     const hongLuHp = currentUser.idHealth["The Lord of Hongyuan Hong Lu"] || 0;
                     const faustHp = currentUser.idHealth["Heishou Pack - Mao Branch Adept Faust"] || 0;
                     const heathcliffHp = currentUser.idHealth["Heishou Pack - You Branch Adept Heathcliff"] || 0;
-
-                    if (hongLuHp <= 0 && faustHp <= 0 && heathcliffHp <= 0) {
-                        allSquadDead = true;
-                    }
+                    if (hongLuHp <= 0 && faustHp <= 0 && heathcliffHp <= 0) allSquadDead = true;
                 } else if (userHearts <= 0) {
                     allSquadDead = true;
                 }
 
                 if (allSquadDead) {
                     addMessage(botName, `<b>Defeat</b>. I've heard enough.`, "bot", botIcon);
+
+                    currentUser.sanity["The Lord of Hongyuan Hong Lu"] = 0;
+                    currentUser.sanity["Heishou Pack - Mao Branch Adept Faust"] = 0;
+                    currentUser.sanity["Heishou Pack - You Branch Adept Heathcliff"] = 0;
+                    botSanity = 0;
+                    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
                     isFighting = false;
                     canUserAttack = true;
                     return;
                 }
 
                 if (userHearts <= 0) {
-                    addMessage(botName, `<b>${currentId}</b> has collapsed! Quick, swap to a living identity using <b>?change</b>!`, "bot", botIcon);
+                    addMessage(getUsername(), `<b>${currentId}</b> has collapsed! Quick, swap to a living identity using <b>?change</b>!`, "user", USER_ICON);
                     canUserAttack = true;
                     canChangeIdThisTurn = true;
                     return;
@@ -1134,6 +1217,13 @@ function handleInput() {
                     addMessage(botName, "Victory. I think I've heard enough..", "bot", botIcon);
                     updateStorage(2500);
                     addMessage(botName, `<b>[REWARD]</b> You earned <b>2,500 Lunacy</b>!`, "bot", botIcon);
+
+                    currentUser.sanity["The Lord of Hongyuan Hong Lu"] = 0;
+                    currentUser.sanity["Heishou Pack - Mao Branch Adept Faust"] = 0;
+                    currentUser.sanity["Heishou Pack - You Branch Adept Heathcliff"] = 0;
+                    botSanity = 0;
+                    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
                     isFighting = false;
                     canUserAttack = true;
                 } else {
@@ -1153,6 +1243,11 @@ function handleInput() {
 
                                 if (faustHp <= 0 && heathcliffHp <= 0) {
                                     addMessage(botName, `<b>Defeat</b>. I've heard enough.`, "bot", botIcon);
+                                    refreshedUser.sanity["The Lord of Hongyuan Hong Lu"] = 0;
+                                    refreshedUser.sanity["Heishou Pack - Mao Branch Adept Faust"] = 0;
+                                    refreshedUser.sanity["Heishou Pack - You Branch Adept Heathcliff"] = 0;
+                                    botSanity = 0;
+                                    localStorage.setItem("currentUser", JSON.stringify(refreshedUser));
                                     isFighting = false;
                                     canUserAttack = true;
                                     return;
@@ -1175,9 +1270,12 @@ function handleInput() {
                         else if (botRollChoice < 0.95) selectedSkill = sinclairSkills[2];
                         else selectedSkill = sinclairSkills[3];
 
-                        botCurrentRoll = Math.floor(Math.random() * (selectedSkill.max - selectedSkill.min + 1)) + selectedSkill.min;
+                        let calculatedBotMin = Math.max(0, selectedSkill.min + Math.max(-45, Math.min(45, botSanity)));
+                        if (calculatedBotMin > selectedSkill.max) calculatedBotMin = selectedSkill.max;
 
-                        addMessage(botName, `<b>${selectedSkill.name}</b>: [${botCurrentRoll}]`, "bot", botIcon);
+                        botCurrentRoll = Math.floor(Math.random() * (selectedSkill.max - calculatedBotMin + 1)) + calculatedBotMin;
+
+                        addMessage(botName, `<b>${selectedSkill.name}</b>: [${botCurrentRoll}] (Sanity: ${botSanity} SP)`, "bot", botIcon);
 
                         const chatContainer = document.getElementById("chat-container");
                         chatContainer.classList.add("screen-shake");
@@ -1211,45 +1309,26 @@ function handleInput() {
 
         if (currentId === "Heishou Pack - Mao Branch Adept Faust") {
             activeSkillPool = JSON.parse(JSON.stringify(faustSkills));
-            if (currentUser && currentUser.heishouBuffActive) {
-                activeSkillPool[0].chance = 0;
-                activeSkillPool[1].chance = 0;
-                activeSkillPool[2].chance = 1.00;
-                activeSkillPool[3].chance = 0;
+            if (currentUser && currentUser.faustS3Empowered) {
+                activeSkillPool[0].chance = 0; activeSkillPool[1].chance = 0; activeSkillPool[2].chance = 1.00; activeSkillPool[3].chance = 0;
             }
         }
         else if (currentId === "Heishou Pack - You Branch Adept Heathcliff") {
             activeSkillPool = JSON.parse(JSON.stringify(heathcliffSkills));
-            if (currentUser && currentUser.heishouBuffActive) {
-                activeSkillPool[0].chance = 0;
-                activeSkillPool[1].chance = 0;
-                activeSkillPool[2].chance = 1.00;
-                activeSkillPool[3].chance = 0;
+            if (currentUser && currentUser.heathS3Empowered) {
+                activeSkillPool[0].chance = 0; activeSkillPool[1].chance = 0; activeSkillPool[2].chance = 1.00; activeSkillPool[3].chance = 0;
             }
         }
         else {
             activeSkillPool = JSON.parse(JSON.stringify(hongluSkills));
-
             if (currentUser && currentUser.lonesomeBuffActive) {
-                activeSkillPool[0].chance = 0;
-                activeSkillPool[1].chance = 0;
-                activeSkillPool[2].chance = 0;
-                activeSkillPool[3].chance = 0;
-                activeSkillPool[4].chance = 1.00;
+                activeSkillPool[0].chance = 0; activeSkillPool[1].chance = 0; activeSkillPool[2].chance = 0; activeSkillPool[3].chance = 0; activeSkillPool[4].chance = 1.00;
             }
             else if (currentUser && currentUser.lordCarveBuffActive) {
-                activeSkillPool[0].chance = 0;
-                activeSkillPool[1].chance = 0;
-                activeSkillPool[2].chance = 0;
-                activeSkillPool[3].chance = 1.00;
-                activeSkillPool[4].chance = 0;
+                activeSkillPool[0].chance = 0; activeSkillPool[1].chance = 0; activeSkillPool[2].chance = 0; activeSkillPool[3].chance = 1.00; activeSkillPool[4].chance = 0;
             }
             else {
-                activeSkillPool[0].chance = 0.65;
-                activeSkillPool[1].chance = 0.22;
-                activeSkillPool[2].chance = 0.13;
-                activeSkillPool[3].chance = 0.00;
-                activeSkillPool[4].chance = 0.00;
+                activeSkillPool[0].chance = 0.65; activeSkillPool[1].chance = 0.22; activeSkillPool[2].chance = 0.13; activeSkillPool[3].chance = 0.00; activeSkillPool[4].chance = 0.00;
             }
         }
 
@@ -1258,9 +1337,7 @@ function handleInput() {
             let accumulatedChance = 0;
             for (let i = 0; i < activeSkillPool.length; i++) {
                 accumulatedChance += activeSkillPool[i].chance;
-                if (roll <= accumulatedChance) {
-                    return activeSkillPool[i];
-                }
+                if (roll <= accumulatedChance) return activeSkillPool[i];
             }
             return activeSkillPool[0];
         }
@@ -1271,10 +1348,19 @@ function handleInput() {
         userSkillChoices = [firstSkill, secondSkill];
         awaitingSkillChoice = true;
 
+        // Dynamic minimum calculation using clamped user sanity bounds
+        let userSanityModifier = Math.max(-45, Math.min(45, currentUser.sanity[currentId]));
+
+        let choice1Min = Math.max(0, userSkillChoices[0].min + userSanityModifier);
+        let choice2Min = Math.max(0, userSkillChoices[1].min + userSanityModifier);
+
+        if (choice1Min > userSkillChoices[0].max) choice1Min = userSkillChoices[0].max;
+        if (choice2Min > userSkillChoices[1].max) choice2Min = userSkillChoices[1].max;
+
         const choicesDisplay = `
             <b>Select your strategic counter:</b><br>
-            1️⃣ <b>${userSkillChoices[0].name}</b> [${userSkillChoices[0].min} - ${userSkillChoices[0].max}]<br>
-            2️⃣ <b>${userSkillChoices[1].name}</b> [${userSkillChoices[1].min} - ${userSkillChoices[1].max}]<br>
+            1️⃣ <b>${userSkillChoices[0].name}</b> [${choice1Min} - ${userSkillChoices[0].max}]<br>
+            2️⃣ <b>${userSkillChoices[1].name}</b> [${choice2Min} - ${userSkillChoices[1].max}]<br>
             <span style="font-size: 0.85em; color: #aaa;">Type <b>?skill 1</b> or <b>?skill 2</b> to strike!</span>
         `;
         addMessage(getUsername(), choicesDisplay, "user", USER_ICON);
