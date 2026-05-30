@@ -1,62 +1,27 @@
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-var player;
+let loginForm = document.querySelector("#login-form");
 
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('video');
-}
-document.getElementById("toggleSound").addEventListener("click", function () {
-    if (player.isMuted()) {
-        player.unMute();
-    } else {
-        player.mute();
-    }
-});
+loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let email = loginForm.email.value.trim().toLowerCase();
+    let password = loginForm.password.value.trim();
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let user = users.find(u => u.email === email && u.password === password);
 
-function playSound(audioId) {
-    const audio = document.getElementById(audioId);
-    document.querySelectorAll("audio").forEach(a => {
-        a.pause();
-        a.currentTime = 0;
-    });
-    audio.currentTime = 0;
-    audio.play();
-}
-document.getElementById("don").addEventListener("click", () => {
-    playSound("sound1");
-});
-document.getElementById("susu").addEventListener("click", () => {
-    playSound("sound2");
-});
-document.getElementById("rod").addEventListener("click", () => {
-    playSound("sound3");
-});
-
-window.addEventListener('scroll', function () {
-    const header = document.getElementById('header');
-    const targetDiv = document.getElementById('main-content');
-
-    if (targetDiv) {
-        const divTop = targetDiv.offsetTop;
-        const divBottom = divTop + targetDiv.offsetHeight;
-        const scrollPos = window.scrollY;
-
-        if (scrollPos >= divTop && scrollPos <= divBottom) {
-            header.classList.add('in-view');
-        } else {
-            header.classList.remove('in-view');
+    if (user) {
+        if (user.isBanned) {
+            alert("This account has been terminated.");
+            return;
         }
-    }
-});
 
-window.addEventListener("scroll", function () {
-    const header = document.getElementById("header");
+        localStorage.setItem("currentUser", JSON.stringify({
+            email: user.email,
+            username: user.username,
+            equippedTag: user.equippedTag || null
+        }));
 
-    if (window.scrollY === 0) {
-        header.classList.add("in-view");
+        alert("Welcome back, Manager.");
+        window.location.href = "./main.html";
     } else {
-        header.classList.remove("in-view");
+        alert("Check your password or email.");
     }
 });
