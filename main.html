@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Middle Nursefather Outis - LIMBUS COMPANY</title>
+    <title>Chapter 9.5 Mnestic Experience - LIMBUS COMPANY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -51,7 +51,7 @@
         <section class="snap-section">
             <div id="main-content">
                 <iframe id="video"
-                    src="https://www.youtube.com/embed/BF_ULinL-jU?autoplay=1&mute=1&loop=1&controls=0&playlist=BF_ULinL-jU&enablejsapi=1"
+                    src="https://www.youtube.com/embed/8ykNnkRrSHc?autoplay=1&mute=1&loop=1&controls=0&playlist=8ykNnkRrSHc&enablejsapi=1"
                     title="Limbus video" frameborder="0" allow="autoplay; fullscreen">
                 </iframe>
                 <a href="#content2" class="scroll-down">
@@ -165,8 +165,6 @@
             More</a>
     </div>
 
-    <script src="./js/index.js"></script>
-
     <div id="content3" class="snap-section">
         <img class="imgend" src="img/end.png" alt="ending">
     </div>
@@ -199,44 +197,7 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script>
-        function playSound(audioId) {
-            const audio = document.getElementById(audioId);
-            document.querySelectorAll("audio").forEach(a => {
-                a.pause();
-                a.currentTime = 0;
-            });
-            audio.currentTime = 0;
-            audio.play();
-            audio.volume = 0.3;
-        }
-        document.getElementById("don").addEventListener("click", () => {
-            playSound("sound1");
-        });
-        document.getElementById("susu").addEventListener("click", () => {
-            playSound("sound2");
-        });
-        document.getElementById("rod").addEventListener("click", () => {
-            playSound("sound3");
-        });
-        window.addEventListener("scroll", function () {
-            const header = document.getElementById("header");
-            const scrollY = window.scrollY;
-            console.log("Scroll position:", scrollY);
-
-            try {
-                if (scrollY === 0) {
-                    header.classList.add("hidden");
-                    console.log("Navbar hidden at top");
-                } else {
-                    header.classList.remove("hidden");
-                    console.log("Navbar visible when scrolling");
-                }
-            } catch (error) {
-                console.log("Error toggling navbar:", error);
-            }
-        });
-    </script>
+    <script src="./js/main.js"></script>
 </body>
 
 </html>

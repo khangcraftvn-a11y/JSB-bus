@@ -133,75 +133,12 @@
             style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; text-shadow: 3px 3px #6A0000;">
             CHARACTERS</h1>
         <div id="essential-section-products">
-            <div id="ideal" class="product-b-card">
-                <img src="img/char18.png" alt="ideal" />
-                <h4>Yi Sang</h4>
-                <p>
-                    Have you ever seen a stuffed genius?
-                </p>
-                <a href="./yisang.html"
-                    style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
-                <audio id="sound1" src="./sound/ideal.wav"></audio>
-            </div>
-
-            <div id="faust" class="product-b-card">
-                <img src="img/char19.png" alt="faust" />
-                <h4>Faust</h4>
-                <p>
-                    Faust knows all outcomes.
-                </p>
-                <a href="./faust.html"
-                    style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
-                <audio id="sound2" src="./sound/faust.wav"></audio>
-            </div>
-
-            <div id="don" class="product-b-card">
-                <img src="img/char17.png" alt="don" />
-                <h4>Don Quxiote</h4>
-                <p>
-                    To reach the unreachable star!
-                </p>
-                <a href="./don.html"
-                    style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
-                <audio id="sound3" src="./sound/don.wav"></audio>
-            </div>
+        
         </div>
     </div>
 
     <div id="essential-section2" class="snap-section">
         <div id="essential-section2-products">
-            <div id="susu" class="product-b-card">
-                <img src="img/char15.png" alt="susu" />
-                <h4>Ryōshū</h4>
-                <p>
-                    Mugamuchū Abikyōkan Shirimetsuretsu
-                </p>
-                <a href="./su.html"
-                    style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
-                <audio id="sound4" src="sound/susu1.wav"></audio>
-            </div>
-
-            <div id="liem" class="product-b-card">
-                <img src="img/char20.png" alt="liem" />
-                <h4>Meursault</h4>
-                <p>
-                    I will execute the order according to the rules.
-                </p>
-                <a href="./sault.html"
-                    style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
-                <audio id="sound5" src="sound/meur.wav"></audio>
-            </div>
-
-            <div id="hong" class="product-b-card">
-                <img src="img/char21.png" alt="hong" />
-                <h4>Hong lu</h4>
-                <p>
-                    I hope something fun happens~
-                </p>
-                <a href="./hong.html"
-                    style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
-                <audio id="sound6" src="sound/hong.wav"></audio>
-            </div>
         </div>
     </div>
 
@@ -279,55 +216,6 @@
         </div>
     </div>
 
-    <script>
-        function playSound(audioId) {
-            const audio = document.getElementById(audioId);
-            document.querySelectorAll("audio").forEach(a => {
-                a.pause();
-                a.currentTime = 0;
-            });
-            audio.currentTime = 0;
-            audio.play();
-            audio.volume = 0.3;
-        }
-        document.getElementById("ideal").addEventListener("click", () => {
-            playSound("sound1");
-        });
-        document.getElementById("faust").addEventListener("click", () => {
-            playSound("sound2");
-        });
-        document.getElementById("don").addEventListener("click", () => {
-            playSound("sound3");
-        });
-        document.getElementById("susu").addEventListener("click", () => {
-            playSound("sound4");
-        });
-        document.getElementById("liem").addEventListener("click", () => {
-            playSound("sound5");
-        });
-        document.getElementById("hong").addEventListener("click", () => {
-            playSound("sound6");
-        });
-        document.getElementById("heath").addEventListener("click", () => {
-            playSound("sound7");
-        });
-        document.getElementById("ishy").addEventListener("click", () => {
-            playSound("sound8");
-        });
-        document.getElementById("rodya").addEventListener("click", () => {
-            playSound("sound9");
-        });
-        document.getElementById("sin").addEventListener("click", () => {
-            playSound("sound10");
-        });
-        document.getElementById("outis").addEventListener("click", () => {
-            playSound("sound11");
-        });
-        document.getElementById("bug").addEventListener("click", () => {
-            playSound("sound12");
-        });
-    </script>
-
     <!-- Ending -->
     <div id="content3" class="snap-section">
         <img class="imgend" src="img/end.png" alt="ending">
@@ -361,6 +249,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+
+
+    <script src="./js/char.js"></script>
 </body>
 
 </html>
