@@ -3,13 +3,15 @@ const url = "https://6a115ff03e35d0f37ee334fc.mockapi.io/id/char";
 fetch(url)
     .then(res => res.json())
     .then(data => {
-        const charGrid1 = document.querySelector('#essential-section-products');   
-        const charGrid2 = document.querySelector('#essential-section2-products');  
-        const charGrid3 = document.querySelector('#essential-section3-products');          
-        const char3 = data.slice(0, 3); 
-        const char6 = data.slice(3,6);
-        const char9 = data.slice(6,9);
-        
+        const charGrid1 = document.querySelector('#essential-section-products');
+        const charGrid2 = document.querySelector('#essential-section2-products');
+        const charGrid3 = document.querySelector('#essential-section3-products');
+        const charGrid4 = document.querySelector('#essential-section4-products');
+        const char3 = data.slice(0, 3);
+        const char6 = data.slice(3, 6);
+        const char9 = data.slice(6, 9);
+        const char12 = data.slice(9, 12);
+
         char3.forEach(char => {
             const charCard = `
                 <div id="api-char-${char.id}" class="product-b-card">
@@ -57,7 +59,23 @@ fetch(url)
             `;
             charGrid3.innerHTML += charCard;
         });
-        
+
+        char12.forEach(char => {
+            const charCard = `
+                <div id="api-char-${char.id}" class="product-b-card">
+                    <img src="img/${char.avatar}" alt="${char.id}" />
+                    <h4>${char.name}</h4>
+                    <p>
+                        ${char.des}
+                    </p>
+                    <a href="./yisang.html"
+                        style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
+                    <audio id="sound-${char.id}" src="./sound/${char.sound}"></audio>
+                </div>
+            `;
+            charGrid4.innerHTML += charCard;
+        });
+
         const yiSangCard = document.getElementById("api-char-1");
         if (yiSangCard) {
             yiSangCard.addEventListener("click", () => playSound("sound-1"));
@@ -72,6 +90,33 @@ fetch(url)
         if (donCard) {
             donCard.addEventListener("click", () => playSound("sound-3"));
         }
+
+        const susuBtn = document.getElementById("api-char-4");
+        if (susuBtn) susuBtn.addEventListener("click", () => playSound("sound-4"));
+
+        const liemBtn = document.getElementById("api-char-5");
+        if (liemBtn) liemBtn.addEventListener("click", () => playSound("sound-5"));
+
+        const hongBtn = document.getElementById("api-char-6");
+        if (hongBtn) hongBtn.addEventListener("click", () => playSound("sound-6"));
+
+        const heathBtn = document.getElementById("api-char-7");
+        if (heathBtn) heathBtn.addEventListener("click", () => playSound("sound-7"));
+
+        const ishyBtn = document.getElementById("api-char-8");
+        if (ishyBtn) ishyBtn.addEventListener("click", () => playSound("sound-8"));
+
+        const rodyaBtn = document.getElementById("api-char-9");
+        if (rodyaBtn) rodyaBtn.addEventListener("click", () => playSound("sound-9"));
+
+        const sinBtn = document.getElementById("api-char-10");
+        if (sinBtn) sinBtn.addEventListener("click", () => playSound("sound-10"));
+
+        const outisBtn = document.getElementById("api-char-11");
+        if (outisBtn) outisBtn.addEventListener("click", () => playSound("sound-11"));
+
+        const bugBtn = document.getElementById("api-char-12");
+        if (bugBtn) bugBtn.addEventListener("click", () => playSound("sound-12"));
     })
     .catch(error => console.error('Error fetching data:', error));
 
@@ -87,7 +132,7 @@ function detailProduct(productId) {
 
 function playSound(audioId) {
     const audio = document.getElementById(audioId);
-    
+
     if (!audio) {
         console.error("Không tìm thấy thẻ audio có ID là:", audioId);
         return;
@@ -105,33 +150,4 @@ function playSound(audioId) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    const susuBtn = document.getElementById("susu");
-    if (susuBtn) susuBtn.addEventListener("click", () => playSound("sound4"));
-
-    const liemBtn = document.getElementById("liem");
-    if (liemBtn) liemBtn.addEventListener("click", () => playSound("sound5"));
-
-    const hongBtn = document.getElementById("hong");
-    if (hongBtn) hongBtn.addEventListener("click", () => playSound("sound6"));
-
-    const heathBtn = document.getElementById("heath");
-    if (heathBtn) heathBtn.addEventListener("click", () => playSound("sound7"));
-
-    const ishyBtn = document.getElementById("ishy");
-    if (ishyBtn) ishyBtn.addEventListener("click", () => playSound("sound8"));
-
-    const rodyaBtn = document.getElementById("rodya");
-    if (rodyaBtn) rodyaBtn.addEventListener("click", () => playSound("sound9"));
-
-    const sinBtn = document.getElementById("sin");
-    if (sinBtn) sinBtn.addEventListener("click", () => playSound("sound10"));
-
-    const outisBtn = document.getElementById("outis");
-    if (outisBtn) outisBtn.addEventListener("click", () => playSound("sound11"));
-
-    const bugBtn = document.getElementById("bug");
-    if (bugBtn) bugBtn.addEventListener("click", () => playSound("sound12"));
-
-});
+_

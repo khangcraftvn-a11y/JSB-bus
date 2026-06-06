@@ -9,13 +9,18 @@ iframe {
 }
 
 #header {
-   padding-right: 100%;
-   padding-top: 10px;
+   width: 100%;
+   padding: 10px 0;
    box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px,
       rgba(17, 17, 26, 0.05) 0px 8px 32px;
-   z-index: 10;
+   z-index: 1000;
    position: fixed;
-   background-color: black;
+   top: 0;
+   left: 0;
+   background-color: rgb(0, 0, 0);
+   transition: opacity 0.3s ease, visibility 0.3s ease;
+   overflow: visible;
+   scroll-behavior: smooth;
 }
 
 /* Introduction */
@@ -171,19 +176,187 @@ iframe {
 }
 
 /* Dots */
-.carousel-indicators [data-bs-target] {
-   width: 8px;
-   height: 7.5px;
-   border-radius: 50%;
-   background-color: black;
-   border: 1px solid red;
-   margin: 0 5px;
-   opacity: 1;
+.custom-sinner-indicators {
+   position: absolute;
+   bottom: 20px;
+   left: 50%;
+   transform: translateX(-50%);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 10px;
+   width: auto;
+   max-width: 95%;
+   margin: 0;
+   padding: 0;
+   background: transparent !important;
+   /* Removes dark background box completely */
+   border: none !important;
+   box-shadow: none !important;
+   z-index: 15;
 }
 
-.carousel-indicators .active {
-   background-color: red !important;
+/* 2. THE CHAMELEON RESET ON THE BUTTONS */
+.custom-sinner-indicators [data-bs-target] {
+   box-sizing: border-box;
+   flex: 0 1 auto;
+   width: 55px;
+   height: 62px;
+   padding: 0;
+   margin: 0;
+   text-indent: 0;
+   cursor: pointer;
+   position: relative;
+
+   /* This completely erases Bootstrap's white rectangle background layout */
+   background: transparent !important;
+   background-color: transparent !important;
+
+   /* Removes the invisible framework padding lines that create the rectangles */
+   border: none !important;
+   border-top: 0px solid transparent !important;
+   border-bottom: 0px solid transparent !important;
+   box-shadow: none !important;
+
+   /* Base Normal State: Dimmed out unselected look */
+   opacity: 0.35 !important;
+   filter: brightness(55%) contrast(90%) grayscale(25%) !important;
+   transform: scale(1);
+   transition: opacity 0.25s ease, filter 0.25s ease, transform 0.2s ease;
+}
+
+.custom-sinner-indicators {
+   position: absolute;
+   bottom: 20px;
+   left: 50%;
+   transform: translateX(-50%);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 10px;
+   width: auto;
+   max-width: 95%;
+   margin: 0;
+   padding: 0;
+   background: transparent !important;
+   background-image: none !important;
+   border: none !important;
+   box-shadow: none !important;
+   z-index: 15;
+}
+
+.custom-sinner-indicators [data-bs-target] {
+   box-sizing: border-box;
+   flex: 0 1 auto;
+   width: 55px;
+   height: 62px;
+   padding: 0;
+   margin: 0;
+   text-indent: 0;
+   cursor: pointer;
+   position: relative;
+   font-size: 0 !important;
+   line-height: 0 !important;
+   color: transparent !important;
+   overflow: hidden !important;
+   background: transparent !important;
+   background-color: transparent !important;
+   border: none !important;
+   border-top: 0px solid transparent !important;
+   border-bottom: 0px solid transparent !important;
+   box-shadow: none !important;
+   text-shadow: none !important;
+   opacity: 0.35 !important;
+   filter: brightness(55%) contrast(90%) grayscale(25%) !important;
+   transform: scale(1);
+   transition: opacity 0.25s ease, filter 0.25s ease, transform 0.2s ease;
+}
+
+.custom-sinner-indicators {
+   position: absolute;
+   bottom: 20px;
+   left: 50%;
+   transform: translateX(-50%);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 10px;
+   width: auto;
+   max-width: 95%;
+   margin: 0;
+   padding: 0;
+   background: transparent !important;
+   background-image: none !important;
+   border: none !important;
+   box-shadow: none !important;
+   z-index: 15;
+}
+
+.custom-sinner-indicators [data-bs-target] {
+   box-sizing: border-box;
+   flex: 0 1 auto;
+   width: 55px;
+   height: 62px;
+   padding: 0;
+   margin: 0;
+   text-indent: 0;
+   cursor: pointer;
+   position: relative;
+   font-size: 0 !important;
+   line-height: 0 !important;
+   color: transparent !important;
+   overflow: hidden !important;
+   background: transparent !important;
+   background-color: transparent !important;
+   border: none !important;
+   border-top: 0px solid transparent !important;
+   border-bottom: 0px solid transparent !important;
+   box-shadow: none !important;
+   text-shadow: none !important;
+
+   opacity: 0.35 !important;
+   filter: brightness(55%) contrast(90%) grayscale(25%) !important;
+   transform: scale(1);
+   transition: opacity 0.25s ease, filter 0.25s ease, transform 0.2s ease;
+}
+
+.custom-sinner-indicators [data-bs-target]::before,
+.custom-sinner-indicators [data-bs-target]::after {
+   content: none !important;
+   display: none !important;
+   opacity: 0 !important;
+   background: transparent !important;
+   background-color: transparent !important;
+   border: none !important;
+   box-shadow: none !important;
+}
+
+.custom-sinner-indicators [data-bs-target] img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+   border: none !important;
+   outline: none !important;
+   box-shadow: none !important;
+}
+
+.custom-sinner-indicators [data-bs-target]:hover {
+   opacity: 0.8 !important;
+   filter: brightness(90%) contrast(100%) grayscale(0%) !important;
+   transform: scale(1.08);
+}
+
+.custom-sinner-indicators [data-bs-target].active {
    opacity: 1 !important;
+   filter: brightness(115%) contrast(115%) grayscale(0%) !important;
+   /* Full vivid clarity */
+   transform: scale(1.2) translateY(-2px) !important;
+   /* Distinctly pops upward */
+}
+
+.custom-sinner-indicators [data-bs-target].active img {
+   filter: drop-shadow(0px 0px 5px rgba(241, 191, 2, 0.75)) !important;
 }
 
 /* Arrow */
