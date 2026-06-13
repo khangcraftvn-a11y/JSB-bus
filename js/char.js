@@ -7,6 +7,7 @@ fetch(url)
         const charGrid2 = document.querySelector('#essential-section2-products');
         const charGrid3 = document.querySelector('#essential-section3-products');
         const charGrid4 = document.querySelector('#essential-section4-products');
+
         const char3 = data.slice(0, 3);
         const char6 = data.slice(3, 6);
         const char9 = data.slice(6, 9);
@@ -20,7 +21,7 @@ fetch(url)
                     <p>
                         ${char.des}
                     </p>
-                    <a href="./yisang.html"
+                    <a href="./product.html?id=${char.id}"
                         style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
                     <audio id="sound-${char.id}" src="./sound/${char.sound}"></audio>
                 </div>
@@ -36,7 +37,7 @@ fetch(url)
                     <p>
                         ${char.des}
                     </p>
-                    <a href="./yisang.html"
+                    <a href="./product.html?id=${char.id}"
                         style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
                     <audio id="sound-${char.id}" src="./sound/${char.sound}"></audio>
                 </div>
@@ -52,7 +53,7 @@ fetch(url)
                     <p>
                         ${char.des}
                     </p>
-                    <a href="./yisang.html"
+                    <a href="./product.html?id=${char.id}"
                         style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
                     <audio id="sound-${char.id}" src="./sound/${char.sound}"></audio>
                 </div>
@@ -68,7 +69,7 @@ fetch(url)
                     <p>
                         ${char.des}
                     </p>
-                    <a href="./yisang.html"
+                    <a href="./product.html?id=${char.id}"
                         style="color: #F1BF02; font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">About</a>
                     <audio id="sound-${char.id}" src="./sound/${char.sound}"></audio>
                 </div>
@@ -120,16 +121,6 @@ fetch(url)
     })
     .catch(error => console.error('Error fetching data:', error));
 
-function detailProduct(productId) {
-    fetch(`https://67bb1dc1fbe0387ca1391d45.mockapi.io/products/${productId}`)
-        .then(response => response.json())
-        .then(product => {
-            window.localStorage.setItem("product", JSON.stringify(product));
-            window.location.href = "../detail.html";
-        })
-        .catch(error => console.error('Error fetching product details:', error));
-}
-
 function playSound(audioId) {
     const audio = document.getElementById(audioId);
 
@@ -150,4 +141,12 @@ function playSound(audioId) {
     });
 }
 
-_
+function detailProduct(productId) {
+    fetch(`https://67bb1dc1fbe0387ca1391d45.mockapi.io/products/${productId}`)
+        .then(response => response.json())
+        .then(product => {
+            window.localStorage.setItem("product", JSON.stringify(product));
+            window.location.href = "../detail.html";
+        })
+        .catch(error => console.error('Error fetching product details:', error));
+}

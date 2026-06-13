@@ -9,24 +9,27 @@ iframe {
 }
 
 #header {
-   padding-right: 100%;
-   padding-top: 10px;
+   width: 100%;
+   padding: 10px 0;
    box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px,
       rgba(17, 17, 26, 0.05) 0px 8px 32px;
-   z-index: 10;
+   z-index: 1000;
    position: fixed;
-   background-color: black;
+   top: 0;
+   left: 0;
+   background-color: rgb(0, 0, 0);
+   transition: opacity 0.3s ease, visibility 0.3s ease;
+   overflow: visible;
+   scroll-behavior: smooth;
 }
 
-.snap-section {
-   width: 100%;
-   height: 100vh;
-   scroll-snap-align: start;
-   position: relative;
+#header.hidden {
+   opacity: 0;
+   visibility: hidden;
 }
 
 /* Introduction */
-#content {
+.content {
    background-color: #000;
 }
 
@@ -54,6 +57,80 @@ iframe {
    gap: 20px;
 }
 
+.snap-container {
+   height: 100vh;
+   scroll-snap-type: y mandatory;
+   scroll-behavior: smooth;
+}
+
+.snap-section {
+   width: 100%;
+   height: 100vh;
+   scroll-snap-align: start;
+   position: relative;
+}
+
+#main-content {
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
+}
+
+.scroll-down {
+   position: absolute;
+   bottom: 30px;
+   left: 50%;
+   transform: translateX(-50%);
+   text-decoration: none;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   z-index: 10;
+   transition: 0.3s ease;
+}
+
+.arrow-box {
+   color: #F1BF02;
+   font-size: 2.5rem;
+   filter: drop-shadow(0 0 8px rgba(241, 191, 2, 0.6));
+   animation: pulseArrow 2s infinite;
+}
+
+.scroll-text {
+   color: white;
+   font-family: Impact, sans-serif;
+   font-size: 12px;
+   letter-spacing: 4px;
+   margin-top: 5px;
+   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes pulseArrow {
+
+   0%,
+   100% {
+      transform: translateY(0);
+      opacity: 0.7;
+   }
+
+   50% {
+      transform: translateY(10px);
+      opacity: 1;
+   }
+}
+
+.scroll-down:hover .arrow-box {
+   color: white;
+   filter: drop-shadow(0 0 15px #F1BF02);
+}
+
+#video {
+   top: 50%;
+   left: 50%;
+   width: 100%;
+   height: 100%;
+}
+
 /* Image face the sin */
 .imgface {
    width: 100%;
@@ -68,6 +145,7 @@ iframe {
 }
 
 .nav-left a {
+   display: inline-block;
    text-decoration: none;
    color: rgb(255, 255, 255);
    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
@@ -75,8 +153,7 @@ iframe {
 }
 
 .nav-left a:hover {
-   text-decoration: underline;
-   text-underline-offset: 10px;
+   border-bottom: 2px solid white;
 }
 
 #login-btn {
@@ -95,6 +172,23 @@ iframe {
    border-radius: 6px;
    border: none;
    cursor: pointer;
+}
+
+#toggleSound {
+   background-color: transparent;
+   color: white;
+   border: none;
+   cursor: pointer;
+   text-decoration: none;
+}
+
+#toggleSound:hover {
+   background-color: transparent;
+   color: white;
+   border: none;
+   cursor: pointer;
+   text-decoration: underline;
+   text-underline-offset: 5px;
 }
 
 #content img {
@@ -149,13 +243,75 @@ iframe {
 }
 
 .hero-button button:hover {
-   background-color: white;
-   color: black;
+   background-color: #F1BF02;
+   color: #6A0000;
    border: 1px solid black;
 }
 
 .secondary-btn {
    background-color: rgb(194, 13, 13);
+}
+
+/* Chat Button */
+.dropdown {
+   position: relative;
+   display: inline-block;
+}
+
+.nav-chat-btn {
+   background: none;
+   border: none;
+   color: white;
+   font-family: Impact, sans-serif;
+   font-size: 17px;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   height: 50px;
+   transition: 0.2s;
+}
+
+#arrow-icon {
+   transition: transform 0.3s ease;
+   display: inline-block;
+}
+
+.arrow-down {
+   transform: rotate(180deg);
+}
+
+.dropdown {
+   position: relative;
+   display: inline-block;
+}
+
+.dropdown-content {
+   display: none;
+   position: absolute;
+   background-color: #111;
+   min-width: 140px;
+   border: 1px solid var(--ryoshu-red);
+   top: 50px;
+   z-index: 100;
+}
+
+.dropdown-content a {
+   color: white;
+   padding: 12px 16px;
+   text-decoration: none;
+   display: block;
+   font-family: Arial, sans-serif;
+   font-size: 14px;
+   transition: 0.3s;
+}
+
+.dropdown-content a:hover {
+   background-color: var(--ryoshu-red);
+}
+
+.show {
+   display: block !important;
 }
 
 /* Testimonial */
@@ -272,53 +428,14 @@ iframe {
    background-color: #000;
 }
 
-#essential-section {
+#testimonials-character {
    display: flex;
    flex-direction: column;
    margin: auto;
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("./img/back1.webp");
-   background-size: cover;
-   background-position: center;
-   gap: 50px;
-}
-
-#essential-section2 {
-   display: flex;
-   flex-direction: column;
-   margin: auto;
-   padding: 70px 100px;
-   align-items: center;
-   background-color: black;
-   background-image: url("./img/back2.png");
-   background-size: cover;
-   background-position: center;
-   gap: 50px;
-}
-
-#essential-section3 {
-   display: flex;
-   flex-direction: column;
-   margin: auto;
-   padding: 70px 100px;
-   align-items: center;
-   background-color: black;
-   background-image: url("./img/back3.png");
-   background-size: cover;
-   background-position: center;
-   gap: 50px;
-}
-
-#essential-section4 {
-   display: flex;
-   flex-direction: column;
-   margin: auto;
-   padding: 70px 100px;
-   align-items: center;
-   background-color: black;
-   background-image: url("./img/back4.webp");
+   background-image: url("../img/back1.webp");
    background-size: cover;
    background-position: center;
    gap: 50px;
@@ -332,41 +449,11 @@ iframe {
    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
-#essential-section h1 {
-   font-size: 40px;
-}
-
-#essential-section2 h1 {
-   font-size: 40px;
-}
-
-#essential-section3 h1 {
-   font-size: 40px;
-}
-
-#essential-section4 h1 {
+#testimonials-character h1 {
    font-size: 40px;
 }
 
 #essential-section-products {
-   display: flex;
-   flex-direction: row;
-   gap: 50px;
-}
-
-#essential-section2-products {
-   display: flex;
-   flex-direction: row;
-   gap: 50px;
-}
-
-#essential-section3-products {
-   display: flex;
-   flex-direction: row;
-   gap: 50px;
-}
-
-#essential-section4-products {
    display: flex;
    flex-direction: row;
    gap: 50px;
@@ -390,7 +477,7 @@ iframe {
    transform: scale(1.05);
 }
 
-.product-b-card a {
+#testimonials-character a {
    width: 370px;
    background-color: #6A0000;
    padding: 15px 0;
@@ -403,7 +490,7 @@ iframe {
    text-align: center;
 }
 
-.product-b-card a:hover {
+#testimonials-character a:hover {
    width: 370px;
    background-color: black;
    padding: 15px 0;

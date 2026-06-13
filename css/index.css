@@ -273,45 +273,45 @@ iframe {
 }
 
 #arrow-icon {
-    transition: transform 0.3s ease;
-    display: inline-block;
+   transition: transform 0.3s ease;
+   display: inline-block;
 }
 
 .arrow-down {
-    transform: rotate(180deg);
+   transform: rotate(180deg);
 }
 
 .dropdown {
-    position: relative;
-    display: inline-block;
+   position: relative;
+   display: inline-block;
 }
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #111;
-    min-width: 140px;
-    border: 1px solid var(--ryoshu-red);
-    top: 50px;
-    z-index: 100;
+   display: none;
+   position: absolute;
+   background-color: #111;
+   min-width: 140px;
+   border: 1px solid var(--ryoshu-red);
+   top: 50px;
+   z-index: 100;
 }
 
 .dropdown-content a {
-    color: white;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    transition: 0.3s;
+   color: white;
+   padding: 12px 16px;
+   text-decoration: none;
+   display: block;
+   font-family: Arial, sans-serif;
+   font-size: 14px;
+   transition: 0.3s;
 }
 
 .dropdown-content a:hover {
-    background-color: var(--ryoshu-red);
+   background-color: var(--ryoshu-red);
 }
 
 .show {
-    display: block !important;
+   display: block !important;
 }
 
 /* Testimonial */
