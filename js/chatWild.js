@@ -172,7 +172,7 @@ function analyzeVolume() {
     if (bgVideo) {
         const baseScale = 1.00;
 
-        const zoomIntensity = averageVolume / 800;
+        const zoomIntensity = averageVolume / 400;
         const dynamicScale = baseScale + zoomIntensity;
 
         bgVideo.style.transform = `translate(-50%, -50%) scale(${dynamicScale})`;
@@ -852,7 +852,7 @@ function handleInput() {
 
         isFighting = true;
         canChangeIdThisTurn = true;
-        botHearts = 40;
+        botHearts = 10;
         botSanity = 0;
 
         let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
@@ -1114,9 +1114,8 @@ function handleInput() {
             setTimeout(() => {
                 if (userRoll > botCurrentRoll) {
                     botHearts--;
-                    // Clamp bot sanity drop down to -45 minimum
+
                     botSanity = Math.max(-45, Math.min(45, botSanity - 5));
-                    // Clamp user sanity gain up to 45 max
                     currentUser.sanity[currentId] = Math.max(-45, Math.min(45, currentUser.sanity[currentId] + 5));
                     localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
@@ -1323,8 +1322,7 @@ function handleInput() {
             activeSkillPool = JSON.parse(JSON.stringify(hongluSkills));
             if (currentUser && currentUser.lonesomeBuffActive) {
                 activeSkillPool[0].chance = 0; activeSkillPool[1].chance = 0; activeSkillPool[2].chance = 0; activeSkillPool[3].chance = 0; activeSkillPool[4].chance = 1.00;
-            }
-            else if (currentUser && currentUser.lordCarveBuffActive) {
+            }            else if (currentUser && currentUser.lordCarveBuffActive) {
                 activeSkillPool[0].chance = 0; activeSkillPool[1].chance = 0; activeSkillPool[2].chance = 0; activeSkillPool[3].chance = 1.00; activeSkillPool[4].chance = 0;
             }
             else {

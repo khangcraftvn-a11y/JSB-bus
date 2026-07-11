@@ -31,7 +31,7 @@
                     <a href="./profile.html">PROFILE</a>
                 </div>
                 <div class="nav-right">
-                    <a href="./index.html">
+                    <a href="./index.html" id="auth-link">
                         <button style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;"
                             id="login-btn">Login</button>
                     </a>
@@ -73,7 +73,9 @@
                     <div class="mb-3">
                         <label class="form-label limbus-label">Sinner Image URL</label>
                         <input type="text" id="avatarUrl" class="form-control limbus-input"
-                            placeholder="Paste your custom image link here...">
+                            placeholder="Click here to upload from your files...">
+
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
                     </div>
 
                     <div class="text-end mt-4">

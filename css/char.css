@@ -60,7 +60,7 @@ iframe {
 
 .snap-section {
    width: 100%;
-   height: 100vh;
+   height: 100%;
    scroll-snap-align: start;
    position: relative;
 }
@@ -82,6 +82,19 @@ iframe {
 .nav-left a:hover {
    text-decoration: underline;
    text-underline-offset: 10px;
+}
+
+.nav-user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.nav-user-icon:hover {
+    transform: scale(1.15);
+    /* 15% */
 }
 
 #login-btn {
@@ -177,186 +190,42 @@ iframe {
 
 /* Dots */
 .custom-sinner-indicators {
-   position: absolute;
-   bottom: 20px;
+   bottom: 25px;
    left: 50%;
-   transform: translateX(-50%);
-   display: flex;
-   justify-content: center;
-   align-items: center;
    gap: 10px;
    width: auto;
    max-width: 95%;
-   margin: 0;
-   padding: 0;
-   background: transparent !important;
-   /* Removes dark background box completely */
-   border: none !important;
-   box-shadow: none !important;
-   z-index: 15;
-}
-
-/* 2. THE CHAMELEON RESET ON THE BUTTONS */
-.custom-sinner-indicators [data-bs-target] {
-   box-sizing: border-box;
-   flex: 0 1 auto;
-   width: 55px;
-   height: 62px;
-   padding: 0;
-   margin: 0;
-   text-indent: 0;
-   cursor: pointer;
-   position: relative;
-
-   /* This completely erases Bootstrap's white rectangle background layout */
-   background: transparent !important;
-   background-color: transparent !important;
-
-   /* Removes the invisible framework padding lines that create the rectangles */
-   border: none !important;
-   border-top: 0px solid transparent !important;
-   border-bottom: 0px solid transparent !important;
-   box-shadow: none !important;
-
-   /* Base Normal State: Dimmed out unselected look */
-   opacity: 0.35 !important;
-   filter: brightness(55%) contrast(90%) grayscale(25%) !important;
-   transform: scale(1);
-   transition: opacity 0.25s ease, filter 0.25s ease, transform 0.2s ease;
-}
-
-.custom-sinner-indicators {
-   position: absolute;
-   bottom: 20px;
-   left: 50%;
    transform: translateX(-50%);
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   gap: 10px;
-   width: auto;
-   max-width: 95%;
    margin: 0;
    padding: 0;
-   background: transparent !important;
-   background-image: none !important;
-   border: none !important;
-   box-shadow: none !important;
-   z-index: 15;
+   background: transparent;
 }
 
 .custom-sinner-indicators [data-bs-target] {
    box-sizing: border-box;
-   flex: 0 1 auto;
    width: 55px;
    height: 62px;
    padding: 0;
    margin: 0;
-   text-indent: 0;
+   text-indent: 0px;
    cursor: pointer;
-   position: relative;
-   font-size: 0 !important;
-   line-height: 0 !important;
-   color: transparent !important;
-   overflow: hidden !important;
-   background: transparent !important;
-   background-color: transparent !important;
-   border: none !important;
-   border-top: 0px solid transparent !important;
-   border-bottom: 0px solid transparent !important;
-   box-shadow: none !important;
-   text-shadow: none !important;
-   opacity: 0.35 !important;
-   filter: brightness(55%) contrast(90%) grayscale(25%) !important;
-   transform: scale(1);
+   background: transparent;
+   border: none;
+   opacity: 0.35;
+   filter: brightness(55%);
    transition: opacity 0.25s ease, filter 0.25s ease, transform 0.2s ease;
-}
-
-.custom-sinner-indicators {
-   position: absolute;
-   bottom: 20px;
-   left: 50%;
-   transform: translateX(-50%);
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   gap: 10px;
-   width: auto;
-   max-width: 95%;
-   margin: 0;
-   padding: 0;
-   background: transparent !important;
-   background-image: none !important;
-   border: none !important;
-   box-shadow: none !important;
-   z-index: 15;
-}
-
-.custom-sinner-indicators [data-bs-target] {
-   box-sizing: border-box;
-   flex: 0 1 auto;
-   width: 55px;
-   height: 62px;
-   padding: 0;
-   margin: 0;
-   text-indent: 0;
-   cursor: pointer;
-   position: relative;
-   font-size: 0 !important;
-   line-height: 0 !important;
-   color: transparent !important;
-   overflow: hidden !important;
-   background: transparent !important;
-   background-color: transparent !important;
-   border: none !important;
-   border-top: 0px solid transparent !important;
-   border-bottom: 0px solid transparent !important;
-   box-shadow: none !important;
-   text-shadow: none !important;
-
-   opacity: 0.35 !important;
-   filter: brightness(55%) contrast(90%) grayscale(25%) !important;
-   transform: scale(1);
-   transition: opacity 0.25s ease, filter 0.25s ease, transform 0.2s ease;
-}
-
-.custom-sinner-indicators [data-bs-target]::before,
-.custom-sinner-indicators [data-bs-target]::after {
-   content: none !important;
-   display: none !important;
-   opacity: 0 !important;
-   background: transparent !important;
-   background-color: transparent !important;
-   border: none !important;
-   box-shadow: none !important;
 }
 
 .custom-sinner-indicators [data-bs-target] img {
    width: 100%;
    height: 100%;
    object-fit: cover;
-   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-   border: none !important;
-   outline: none !important;
-   box-shadow: none !important;
 }
 
 .custom-sinner-indicators [data-bs-target]:hover {
-   opacity: 0.8 !important;
-   filter: brightness(90%) contrast(100%) grayscale(0%) !important;
-   transform: scale(1.08);
-}
-
-.custom-sinner-indicators [data-bs-target].active {
-   opacity: 1 !important;
-   filter: brightness(115%) contrast(115%) grayscale(0%) !important;
-   /* Full vivid clarity */
-   transform: scale(1.2) translateY(-2px) !important;
-   /* Distinctly pops upward */
-}
-
-.custom-sinner-indicators [data-bs-target].active img {
-   filter: drop-shadow(0px 0px 5px rgba(241, 191, 2, 0.75)) !important;
+   opacity: 1;
+   filter: brightness(90%);
+   transform: scale(1.2);
 }
 
 /* Arrow */
@@ -452,7 +321,7 @@ iframe {
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("../img/back1.webp");
+   background-image: url("../img/back9.png");
    background-size: cover;
    background-position: center;
    gap: 50px;
@@ -465,7 +334,7 @@ iframe {
    padding: 70px 100px;
    align-items: center;
    background-color: black;
-   background-image: url("../img/back2.png");
+   background-image: url("../img/back1.png");
    background-size: cover;
    background-position: center;
    gap: 50px;

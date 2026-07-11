@@ -121,6 +121,22 @@ fetch(url)
     })
     .catch(error => console.error('Error fetching data:', error));
 
+document.addEventListener("DOMContentLoaded", () => {
+    // === AUTHENTICATION LOGIC ===
+    const savedUser = localStorage.getItem("currentUser");
+    const authLink = document.querySelector("#auth-link");
+
+    if (savedUser && authLink) {
+        authLink.href = "./profile.html";
+        const currentUser = JSON.parse(savedUser);
+        const userImage = (currentUser.image && currentUser.image.trim() !== "")
+            ? currentUser.image
+            : "./img/limbusUser.png";
+
+        authLink.innerHTML = `<img src="${userImage}" alt="Profile" class="nav-user-icon">`;
+    }
+});
+
 function playSound(audioId) {
     const audio = document.getElementById(audioId);
 
@@ -137,7 +153,7 @@ function playSound(audioId) {
     audio.currentTime = 0;
     audio.volume = 0.3;
     audio.play().catch(error => {
-        console.log("Trình duyệt chặn tự động phát nhạc khi chưa tương tác trực tiếp:", error);
+        console.log("block music:", error);
     });
 }
 

@@ -268,6 +268,28 @@ iframe {
     border-bottom: 2px solid white;
 }
 
+.nav-user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.nav-user-icon:hover {
+    transform: scale(1.15);
+    /* 15% */
+}
+
+.avatar-frame {
+    max-width: 100%;
+    height: auto;
+    max-height: 250px;
+    border-radius: 12px;
+    /* Smooth card border edges */
+    object-fit: cover;
+}
+
 #login-btn {
     background-color: #6A0000;
     color: #F1BF02;

@@ -26,7 +26,8 @@ form.addEventListener("submit", (e) => {
         lunacy: 0,
         inventory: {},
         equippedTag: null,
-        equippedId: "The Lord of Hongyuan Hong Lu"
+        equippedId: "The Lord of Hongyuan Hong Lu",
+        image: null
     };
 
     users.push(newUser);
